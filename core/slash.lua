@@ -9,6 +9,7 @@ function LOAD2()
 end
 
 _G.aux_ignore_owner = true
+_G.aux_post_stack = aux_post_stack ~= nil and aux_post_stack or false
 
 function status(enabled)
 	return (enabled and color.green'on' or color.red'off')
@@ -29,6 +30,9 @@ function SlashCmdList.AUX(command)
     elseif arguments[1] == 'post' and arguments[2] == 'bid' then
 	    _G.aux_post_bid = not aux_post_bid
 	    print('post bid ' .. status(aux_post_bid))
+    elseif arguments[1] == 'post' and arguments[2] == 'stack' then
+	    _G.aux_post_stack = not aux_post_stack
+	    print('post stack ' .. status(aux_post_stack))
     elseif arguments[1] == 'tooltip' and arguments[2] == 'value' then
 	    tooltip_settings.value = not tooltip_settings.value
         print('tooltip value ' .. status(tooltip_settings.value))
@@ -59,6 +63,7 @@ function SlashCmdList.AUX(command)
 		print('- scale [' .. color.blue(aux_scale) .. ']')
 		print('- ignore owner [' .. status(aux_ignore_owner) .. ']')
 		print('- post bid [' .. status(aux_post_bid) .. ']')
+		print('- post stack [' .. status(aux_post_stack) .. ']')
 		print('- tooltip value [' .. status(tooltip_settings.value) .. ']')
 		print('- tooltip daily [' .. status(tooltip_settings.daily) .. ']')
 		print('- tooltip merchant buy [' .. status(tooltip_settings.merchant_buy) .. ']')

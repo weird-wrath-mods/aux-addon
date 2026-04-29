@@ -19,12 +19,12 @@ TAB 'Post'
 
 local DURATION_12, DURATION_24, DURATION_48 = 1, 2, 3
 
-local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}}
+local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}, {stack_size='number'}}
 
 local scan_id, inventory_records, bid_records, buyout_records = 0, {}, {}, {}
 
 function get_default_settings()
-	return O('duration', DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false)
+	return O('duration', DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0)
 end
 
 function LOAD2()
@@ -405,17 +405,24 @@ function update_item(item)
 
     hide_checkbox:SetChecked(settings.hidden)
 
+    local max_size
     if selected_item.max_charges then
 	    for i = selected_item.max_charges, 1, -1 do
 			if selected_item.availability[i] > 0 then
 				stack_size_slider:SetMinMaxValues(1, i)
+				max_size = i
 				break
 			end
 	    end
     else
-	    stack_size_slider:SetMinMaxValues(1, min(selected_item.max_stack, selected_item.aux_quantity))
+	    max_size = min(selected_item.max_stack, selected_item.aux_quantity)
+	    stack_size_slider:SetMinMaxValues(1, max_size)
     end
-    stack_size_slider:SetValue(huge)
+    if aux_post_stack and settings.stack_size and settings.stack_size > 0 and max_size and settings.stack_size <= max_size then
+        stack_size_slider:SetValue(settings.stack_size)
+    else
+        stack_size_slider:SetValue(huge)
+    end
     quantity_update(true)
 
     unit_start_price_input:SetText(money.to_string(settings.start_price, true, nil, nil, true))

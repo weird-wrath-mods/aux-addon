@@ -162,11 +162,21 @@ do
     slider:SetScript('OnValueChanged', function()
         quantity_update(true)
     end)
+    slider:SetScript('OnMouseUp', function()
+        if aux_post_stack and selected_item then
+            local settings = read_settings()
+            settings.stack_size = slider:GetValue()
+            write_settings(settings)
+        end
+    end)
     slider.editbox.change = function()
         slider:SetValue(this:GetNumber())
         quantity_update(true)
         if selected_item then
             local settings = read_settings()
+            if aux_post_stack then
+                settings.stack_size = slider:GetValue()
+            end
             write_settings(settings)
         end
     end
