@@ -10,6 +10,7 @@ end
 
 _G.aux_ignore_owner = true
 _G.aux_post_stack = aux_post_stack ~= nil and aux_post_stack or false
+if aux_purchase_summary == nil then _G.aux_purchase_summary = true end
 
 function status(enabled)
 	return (enabled and color.green'on' or color.red'off')
@@ -33,6 +34,13 @@ function SlashCmdList.AUX(command)
     elseif arguments[1] == 'post' and arguments[2] == 'stack' then
 	    _G.aux_post_stack = not aux_post_stack
 	    print('post stack ' .. status(aux_post_stack))
+    elseif arguments[1] == 'purchase' and arguments[2] == 'summary' then
+	    _G.aux_purchase_summary = not aux_purchase_summary
+	    print('purchase summary ' .. status(aux_purchase_summary))
+	    if not aux_purchase_summary then
+	        local ps = require 'aux.gui.purchase_summary'
+	        ps.hide()
+	    end
     elseif arguments[1] == 'tooltip' and arguments[2] == 'value' then
 	    tooltip_settings.value = not tooltip_settings.value
         print('tooltip value ' .. status(tooltip_settings.value))
@@ -64,6 +72,7 @@ function SlashCmdList.AUX(command)
 		print('- ignore owner [' .. status(aux_ignore_owner) .. ']')
 		print('- post bid [' .. status(aux_post_bid) .. ']')
 		print('- post stack [' .. status(aux_post_stack) .. ']')
+		print('- purchase summary [' .. status(aux_purchase_summary) .. ']')
 		print('- tooltip value [' .. status(tooltip_settings.value) .. ']')
 		print('- tooltip daily [' .. status(tooltip_settings.daily) .. ']')
 		print('- tooltip merchant buy [' .. status(tooltip_settings.merchant_buy) .. ']')

@@ -2,7 +2,7 @@
 ## Author: shirsig
 ## Title: aux
 ## Notes: Auction House replacement
-## SavedVariables: aux, aux_scale, aux_post_bid, aux_post_stack, aux_ignore_owner, aux_items, aux_item_ids, aux_auctionable_items, aux_merchant_buy, aux_merchant_sell
+## SavedVariables: aux, aux_scale, aux_post_bid, aux_post_stack, aux_purchase_summary, aux_ignore_owner, aux_items, aux_item_ids, aux_auctionable_items, aux_merchant_buy, aux_merchant_sell
 
 libs\compat.lua
 libs\module.lua

@@ -123,7 +123,7 @@ end
 function M.update_display()
 	local f = create_purchase_summary_frame()
 
-	if not (aux and aux.account and aux.account.purchase_summary ~= false) then
+	if aux_purchase_summary == false then
 		f:Hide()
 		return
 	end
