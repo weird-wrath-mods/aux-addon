@@ -9,7 +9,13 @@ function LOAD2()
 end
 
 _G.aux_ignore_owner = true
-if aux_post_stack == nil then _G.aux_post_stack = true end
+-- Per-item stack memory is the expected default; an earlier rev of this addon
+-- defaulted it off, leaving aux_post_stack=false in some users' SavedVariables.
+-- Force it on once via a marker so we don't fight users who later toggled off.
+if not aux_post_stack_default_migrated then
+	_G.aux_post_stack = true
+	_G.aux_post_stack_default_migrated = true
+end
 if aux_purchase_summary == nil then _G.aux_purchase_summary = true end
 
 function status(enabled)
