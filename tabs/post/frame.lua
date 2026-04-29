@@ -143,6 +143,13 @@ do
     refresh_button = btn
 end
 do
+    local btn = gui.button(frame.parameters)
+    btn:SetPoint('TOPLEFT', refresh_button, 'TOPRIGHT', 5, 0)
+    btn:SetText('Post All')
+    btn:SetScript('OnClick', post_all_click)
+    post_all_button = btn
+end
+do
 	item = gui.item(frame.parameters)
     item:SetPoint('TOPLEFT', 10, -6)
     item.button:SetScript('OnEnter', function()
@@ -243,6 +250,20 @@ do
     label:SetPoint('LEFT', checkbox, 'RIGHT', 4, 1)
     label:SetText('Hide this item')
     hide_checkbox = checkbox
+end
+do
+    local checkbox = gui.checkbox(frame.parameters)
+    checkbox:SetPoint('TOPRIGHT', -83, -24)
+    checkbox:SetScript('OnClick', function()
+        local settings = read_settings()
+        settings.queued = this:GetChecked() and true or false
+        write_settings(settings)
+        refresh = true
+    end)
+    local label = gui.label(checkbox, gui.font_size.small)
+    label:SetPoint('LEFT', checkbox, 'RIGHT', 4, 1)
+    label:SetText('Quick post')
+    queue_checkbox = checkbox
 end
 do
     local editbox = gui.editbox(frame.parameters)

@@ -19,12 +19,14 @@ TAB 'Post'
 
 local DURATION_12, DURATION_24, DURATION_48 = 1, 2, 3
 
-local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}, {stack_size='number'}}
+local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}, {stack_size='number'}, {queued='boolean'}}
 
 local scan_id, inventory_records, bid_records, buyout_records = 0, {}, {}, {}
+batch_posting = false
+local batch_scan_id
 
 function get_default_settings()
-	return O('duration', DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0)
+	return O('duration', DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0, 'queued', false)
 end
 
 function LOAD2()
@@ -258,7 +260,207 @@ function M.post_auctions_bind()
 	post_auctions()
 end
 
+function post_all_click()
+	if batch_posting then
+		stop_batch()
+	else
+		post_all_queued()
+	end
+end
+
+function stop_batch()
+	if batch_posting then
+		batch_posting = false
+		if batch_scan_id then
+			scan.abort(batch_scan_id)
+			batch_scan_id = nil
+		end
+		post.stop()
+		post_all_button:SetText('Post All')
+		status_bar:update_status(1, 1)
+		status_bar:set_text('Batch posting cancelled')
+		update_inventory_records()
+		refresh = true
+	end
+end
+
+function post_all_queued()
+	local queue = T
+	for _, record in pairs(inventory_records) do
+		if record.aux_quantity > 0 and read_settings(record.key).queued then
+			local s = read_settings(record.key)
+			local ss = s.stack_size and s.stack_size > 0 and s.stack_size or 1
+			tinsert(queue, O('key', record.key, 'name', record.name, 'item_id', record.item_id, 'total_value', (history.value(record.key) or 0) * ss))
+		end
+	end
+	sort(queue, function(a, b) return a.total_value > b.total_value end)
+
+	if getn(queue) == 0 then
+		print('No items queued for posting')
+		return
+	end
+
+	batch_posting = true
+	post_all_button:SetText('Stop')
+	post_button:Disable()
+
+	local queue_index = 0
+
+	local function process_next()
+		queue_index = queue_index + 1
+
+		if queue_index > getn(queue) or not batch_posting then
+			batch_posting = false
+			post_all_button:SetText('Post All')
+			status_bar:update_status(1, 1)
+			status_bar:set_text('Batch posting complete')
+			update_inventory_records()
+			refresh = true
+			return
+		end
+
+		local item_key = queue[queue_index].key
+		local item_name = queue[queue_index].name
+		local item_id = queue[queue_index].item_id
+
+		local record
+		for _, r in pairs(inventory_records) do
+			if r.key == item_key and r.aux_quantity > 0 then
+				record = r
+				break
+			end
+		end
+
+		if not record then
+			print(format('Skipping %s: no longer in inventory', item_name))
+			return process_next()
+		end
+
+		status_bar:update_status((queue_index - 1) / getn(queue), 0)
+		status_bar:set_text(format('Scanning %d/%d: %s', queue_index, getn(queue), item_name))
+
+		local item_buyout_records = T
+		local query = scan_util.item_query(item_id)
+
+		batch_scan_id = scan.start{
+			type = 'list',
+			ignore_owner = true,
+			queries = A(query),
+			on_page_loaded = function(page, total_pages)
+				status_bar:update_status((queue_index - 1) / getn(queue), 0)
+				status_bar:set_text(format('Scanning %d/%d: %s (%d/%d)', queue_index, getn(queue), item_name, page, total_pages))
+			end,
+			on_auction = function(auction_record)
+				if auction_record.item_key == item_key and auction_record.unit_buyout_price > 0 then
+					tinsert(item_buyout_records, O(
+						'unit_price', auction_record.unit_buyout_price,
+						'own', cache.is_player(auction_record.owner)
+					))
+				end
+			end,
+			on_abort = function()
+				if batch_posting then stop_batch() end
+			end,
+			on_complete = function()
+				batch_scan_id = nil
+				if not batch_posting then return end
+
+				local settings = read_settings(item_key)
+				local historical_value = history.value(item_key)
+				if not historical_value then
+					print(format('Skipping %s: no historical value', item_name))
+					return process_next()
+				end
+
+				sort(item_buyout_records, function(a, b) return a.unit_price < b.unit_price end)
+
+				local target
+				for _, rec in pairs(item_buyout_records) do
+					if rec.unit_price >= historical_value then
+						target = rec
+						break
+					end
+				end
+
+				local unit_price
+				if target and not target.own then
+					unit_price = max(target.unit_price - 1, historical_value)
+				else
+					unit_price = historical_value
+				end
+
+				local stack_size = settings.stack_size and settings.stack_size > 0 and settings.stack_size or 1
+				if record.max_stack and not record.max_charges and stack_size > record.max_stack then
+					stack_size = record.max_stack
+				end
+
+				local available
+				if record.max_charges then
+					available = record.availability[stack_size] or 0
+				else
+					available = record.availability[0] or 0
+				end
+
+				local full_stacks, remainder
+				if record.max_charges then
+					full_stacks = available
+					remainder = 0
+				else
+					full_stacks = floor(available / stack_size)
+					remainder = mod(available, stack_size)
+				end
+
+				if full_stacks == 0 and remainder == 0 then
+					print(format('Skipping %s: nothing to post at stack size %d', item_name, stack_size))
+					return process_next()
+				end
+
+				local duration = settings.duration
+
+				status_bar:set_text(format('Posting %d/%d: %s', queue_index, getn(queue), item_name))
+
+				local function post_remainder()
+					if not batch_posting then return end
+					if remainder > 0 then
+						post.start(item_key, remainder, duration, unit_price, unit_price, 1, function(posted)
+							if not frame:IsShown() then return end
+							for i = 1, posted do
+								record_auction(item_key, remainder, unit_price * remainder, unit_price, duration + 1, UnitName'player')
+							end
+							update_inventory_records()
+							refresh = true
+							process_next()
+						end)
+					else
+						process_next()
+					end
+				end
+
+				if full_stacks > 0 then
+					post.start(item_key, stack_size, duration, unit_price, unit_price, full_stacks, function(posted)
+						if not frame:IsShown() then return end
+						for i = 1, posted do
+							record_auction(item_key, stack_size, unit_price * stack_size, unit_price, duration + 1, UnitName'player')
+						end
+						update_inventory_records()
+						refresh = true
+						post_remainder()
+					end)
+				else
+					post_remainder()
+				end
+			end,
+		}
+	end
+
+	process_next()
+end
+
 function validate_parameters()
+    if batch_posting then
+        post_button:Disable()
+        return
+    end
     if not selected_item then
         post_button:Disable()
         return
@@ -268,7 +470,7 @@ function validate_parameters()
         return
     end
     if unit_start_price == 0 then
-        post_button:Disable()
+        post_button:Enable()
         return
     end
     if stack_count_slider:GetValue() == 0 then
@@ -294,6 +496,7 @@ function update_item_configuration()
         deposit:Hide()
         duration_dropdown:Hide()
         hide_checkbox:Hide()
+        queue_checkbox:Hide()
     else
         unit_start_price_input:Show()
         unit_buyout_price_input:Show()
@@ -302,6 +505,7 @@ function update_item_configuration()
         deposit:Show()
         duration_dropdown:Show()
         hide_checkbox:Show()
+        queue_checkbox:Show()
 
         item.texture:SetTexture(selected_item.texture)
         item.name:SetText('[' .. selected_item.name .. ']')
@@ -404,6 +608,7 @@ function update_item(item)
     UIDropDownMenu_SetSelectedValue(duration_dropdown, settings.duration)
 
     hide_checkbox:SetChecked(settings.hidden)
+    queue_checkbox:SetChecked(settings.queued)
 
     local max_size
     if selected_item.max_charges then
