@@ -254,6 +254,10 @@ function post_auctions()
 	end
 end
 
+function M.post_auctions_bind()
+	post_auctions()
+end
+
 function validate_parameters()
     if not selected_item then
         post_button:Disable()

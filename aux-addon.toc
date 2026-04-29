@@ -51,4 +51,6 @@ tabs\auctions\frame.lua
 tabs\bids\core.lua
 tabs\bids\frame.lua
 
+localization.lua
+
 
