@@ -113,6 +113,16 @@ M.filters = {
         end
     },
 
+    ['bid-disenchant-percent'] = {
+        input_type = 'number',
+        validator = function(pct)
+            return function(auction_record)
+                local de = disenchant.value(auction_record.slot, auction_record.quality, auction_record.level, auction_record.item_id)
+                return de and auction_record.unit_bid_price / de * 100 <= pct
+            end
+        end
+    },
+
     ['percent'] = {
         input_type = 'number',
         validator = function(pct)
@@ -122,6 +132,25 @@ M.filters = {
                         and auction_record.unit_buyout_price / history.value(auction_record.item_key) * 100 <= pct
             end
         end
+    },
+
+    ['disenchant-percent'] = {
+        input_type = 'number',
+        validator = function(pct)
+            return function(auction_record)
+                local de = disenchant.value(auction_record.slot, auction_record.quality, auction_record.level, auction_record.item_id)
+                return auction_record.unit_buyout_price > 0 and de and auction_record.unit_buyout_price / de * 100 <= pct
+            end
+        end
+    },
+
+    ['isgear'] = {
+        input_type = '',
+        validator = function()
+            return function(auction_record)
+                return info.item(auction_record.item_id).slot ~= ''
+            end
+        end,
     },
 
     ['bid-profit'] = {
