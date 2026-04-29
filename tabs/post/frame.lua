@@ -168,22 +168,38 @@ do
     slider:SetWidth(190)
     slider:SetScript('OnValueChanged', function()
         quantity_update(true)
-        if aux_post_stack and selected_item then
+    end)
+    -- Only save stack size on user-initiated changes (drag or typing). The
+    -- programmatic SetValue(huge) inside update_item would otherwise clamp to
+    -- max but slider:GetValue() can return the inf literal, which doesn't
+    -- round-trip through persistence (tonumber('inf') is nil in Lua 5.1).
+    local user_is_dragging = false
+    local editbox_has_user_focus = false
+    slider:SetScript('OnMouseDown', function()
+        user_is_dragging = true
+    end)
+    slider:SetScript('OnMouseUp', function()
+        if aux_post_stack and selected_item and user_is_dragging then
             local settings = read_settings()
             settings.stack_size = slider:GetValue()
             write_settings(settings)
         end
+        user_is_dragging = false
     end)
     slider.editbox.change = function()
         slider:SetValue(this:GetNumber())
         quantity_update(true)
-        if selected_item then
+        if aux_post_stack and editbox_has_user_focus and selected_item then
             local settings = read_settings()
-            if aux_post_stack then
-                settings.stack_size = slider:GetValue()
-            end
+            settings.stack_size = slider:GetValue()
             write_settings(settings)
         end
+    end
+    slider.editbox.focus_gain = function()
+        editbox_has_user_focus = true
+    end
+    slider.editbox.focus_loss = function()
+        editbox_has_user_focus = false
     end
     slider.editbox:SetScript('OnTabPressed', function()
         if IsShiftKeyDown() then
