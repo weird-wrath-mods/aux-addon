@@ -22,8 +22,7 @@ local DURATION_12, DURATION_24, DURATION_48 = 1, 2, 3
 local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}, {stack_size='number'}, {queued='boolean'}}
 
 local scan_id, inventory_records, bid_records, buyout_records = 0, {}, {}, {}
-batch_posting = false
-local batch_scan_id
+local batch_posting, batch_scan_id = false, nil
 
 function get_default_settings()
 	return O('duration', DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0, 'queued', false)
