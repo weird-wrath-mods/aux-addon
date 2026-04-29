@@ -9,7 +9,7 @@ function LOAD2()
 end
 
 _G.aux_ignore_owner = true
-_G.aux_post_stack = aux_post_stack ~= nil and aux_post_stack or false
+if aux_post_stack == nil then _G.aux_post_stack = true end
 if aux_purchase_summary == nil then _G.aux_purchase_summary = true end
 
 function status(enabled)
