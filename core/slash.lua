@@ -17,6 +17,11 @@ if not aux_post_stack_default_migrated then
 	_G.aux_post_stack_default_migrated = true
 end
 if aux_purchase_summary == nil then _G.aux_purchase_summary = true end
+if aux_undercut == nil then _G.aux_undercut = true end
+
+-- DURATION_12, DURATION_24, DURATION_48 = 1, 2, 3 (matches tabs/post/core.lua)
+local DURATION_NAMES = {[1]='12h', [2]='24h', [3]='48h'}
+local DURATION_INPUTS = {['12']=1, ['24']=2, ['48']=3}
 
 function status(enabled)
 	return (enabled and color.green'on' or color.red'off')
@@ -40,6 +45,12 @@ function SlashCmdList.AUX(command)
     elseif arguments[1] == 'post' and arguments[2] == 'stack' then
 	    _G.aux_post_stack = not aux_post_stack
 	    print('post stack ' .. status(aux_post_stack))
+    elseif arguments[1] == 'post' and arguments[2] == 'duration' and DURATION_INPUTS[arguments[3]] then
+	    _G.aux_post_duration = DURATION_INPUTS[arguments[3]]
+	    print('post duration ' .. color.blue(DURATION_NAMES[aux_post_duration]))
+    elseif arguments[1] == 'uc' then
+	    _G.aux_undercut = not aux_undercut
+	    print('undercutting ' .. status(aux_undercut))
     elseif arguments[1] == 'purchase' and arguments[2] == 'summary' then
 	    _G.aux_purchase_summary = not aux_purchase_summary
 	    print('purchase summary ' .. status(aux_purchase_summary))
@@ -78,6 +89,8 @@ function SlashCmdList.AUX(command)
 		print('- ignore owner [' .. status(aux_ignore_owner) .. ']')
 		print('- post bid [' .. status(aux_post_bid) .. ']')
 		print('- post stack [' .. status(aux_post_stack) .. ']')
+		print('- post duration 12|24|48 [' .. color.blue(DURATION_NAMES[aux_post_duration or 2]) .. ']')
+		print('- uc [' .. status(aux_undercut) .. ']')
 		print('- purchase summary [' .. status(aux_purchase_summary) .. ']')
 		print('- tooltip value [' .. status(tooltip_settings.value) .. ']')
 		print('- tooltip daily [' .. status(tooltip_settings.daily) .. ']')

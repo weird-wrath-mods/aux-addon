@@ -25,7 +25,7 @@ local scan_id, inventory_records, bid_records, buyout_records = 0, {}, {}, {}
 local batch_posting, batch_scan_id = false, nil
 
 function get_default_settings()
-	return O('duration', DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0, 'queued', false)
+	return O('duration', aux_post_duration or DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0, 'queued', false)
 end
 
 function LOAD2()
@@ -551,7 +551,7 @@ end
 
 function undercut(record, stack_size, stack)
     local price = ceil(record.unit_price * (stack and record.stack_size or stack_size))
-    if not record.own then
+    if not record.own and aux_undercut then
 	    price = price - 1
     end
     return price / stack_size
