@@ -544,7 +544,7 @@ for _ = 1, 5 do
 end
 
 favorite_searches_listing = listing.new(frame.saved.favorite)
-favorite_searches_listing:SetColInfo{{name='Favorite Searches', width=1}}
+favorite_searches_listing:SetColInfo{{name='Auto', width=.07, align='CENTER'}, {name='Favorite Searches', width=.93}}
 
 recent_searches_listing = listing.new(frame.saved.recent)
 recent_searches_listing:SetColInfo{{name='Recent Searches', width=1}}
