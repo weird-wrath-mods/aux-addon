@@ -79,7 +79,7 @@ function M.extend_tooltip(tooltip, link, quantity)
     end
 
     if item_info and level then
-        local distribution = disenchant.distribution(item_info.slot, item_info.quality, level)
+        local distribution = disenchant.distribution(item_info.slot, item_info.quality, level, item_info.item_id)
         if #distribution > 0 then
             if settings.disenchant_distribution then
                 tooltip:AddLine('Disenchants into:', color.tooltip.disenchant.distribution())
@@ -94,7 +94,7 @@ function M.extend_tooltip(tooltip, link, quantity)
                 end
             end
             if settings.disenchant_value then
-                local disenchant_value = disenchant.value(item_info.slot, item_info.quality, level)
+                local disenchant_value = disenchant.value(item_info.slot, item_info.quality, level, item_info.item_id)
                 tooltip:AddLine('Disenchant: ' .. (disenchant_value and money.to_string2(disenchant_value) or UNKNOWN),
                     color.tooltip.disenchant.value())
             end

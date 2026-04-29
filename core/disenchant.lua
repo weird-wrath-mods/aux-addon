@@ -35,26 +35,35 @@ local WEAPON = S(
 	'INVTYPE_RANGEDRIGHT'
 )
 
-function M.value(slot, quality, level)
+function M.value(slot, quality, level, item_id)
     local expectation
-    for _, event in pairs(distribution(slot, quality, level)) do
+    for _, event in pairs(distribution(slot, quality, level, item_id)) do
         local value = history.value(event.item_id .. ':' .. 0)
         if not value then
             return
-        else
-            expectation = (expectation or 0) + event.probability * (event.min_quantity + event.max_quantity) / 2 * value
         end
+        local market_value = history.market_value(event.item_id .. ':' .. 0)
+        if market_value then
+            value = min(value, market_value)
+        end
+        expectation = (expectation or 0) + event.probability * (event.min_quantity + event.max_quantity) / 2 * value
     end
     return expectation
 end
 
-function M.distribution(slot, quality, level)
+function M.distribution(slot, quality, level, item_id)
     if not ARMOR[slot] and not WEAPON[slot] then
         return {}
     end
 
-    -- Si le level n'est pas défini, on ne calcule pas la distribution
     if level == 0 then
+        return {}
+    end
+
+    -- Items that ignore the general DE rules: not disenchantable.
+    if item_id == 20408 or item_id == 20407 or item_id == 20406    -- Twilight Cultist set
+        or item_id == 11288 or item_id == 11290                    -- Enchanting-created wands
+        or item_id == 11287 or item_id == 11289 then
         return {}
     end
 
