@@ -625,7 +625,7 @@ function update_item(item)
 	    max_size = min(selected_item.max_stack, selected_item.aux_quantity)
 	    stack_size_slider:SetMinMaxValues(1, max_size)
     end
-    if aux_post_stack and settings.stack_size and settings.stack_size > 0 and max_size and settings.stack_size <= max_size then
+    if settings.stack_size and settings.stack_size > 0 and max_size and settings.stack_size <= max_size then
         stack_size_slider:SetValue(settings.stack_size)
     else
         stack_size_slider:SetValue(huge)

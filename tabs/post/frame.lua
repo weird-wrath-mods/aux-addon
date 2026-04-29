@@ -179,7 +179,7 @@ do
         user_is_dragging = true
     end)
     slider:SetScript('OnMouseUp', function()
-        if aux_post_stack and selected_item and user_is_dragging then
+        if selected_item and user_is_dragging then
             local settings = read_settings()
             settings.stack_size = slider:GetValue()
             write_settings(settings)
@@ -189,7 +189,7 @@ do
     slider.editbox.change = function()
         slider:SetValue(this:GetNumber())
         quantity_update(true)
-        if aux_post_stack and editbox_has_user_focus and selected_item then
+        if editbox_has_user_focus and selected_item then
             local settings = read_settings()
             settings.stack_size = slider:GetValue()
             write_settings(settings)
