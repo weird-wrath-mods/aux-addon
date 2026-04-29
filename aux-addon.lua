@@ -297,6 +297,9 @@ do
 				end
 			end
 			TradeSkillReagentLabel:SetText(SPELL_REAGENTS .. ' ' .. cost_label(total_cost))
+			if ATSWReagentLabel then
+				ATSWReagentLabel:SetText(SPELL_REAGENTS .. ' ' .. cost_label(total_cost))
+			end
 			return unpack(ret)
 		end)
 		for i = 1, 8 do
