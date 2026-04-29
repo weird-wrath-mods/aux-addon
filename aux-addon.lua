@@ -155,11 +155,17 @@ do
 	function M.place_bid(type, index, amount, on_success)
 		if locked then return end
 		local money = GetMoney()
+		local name, texture, count, _, _, _, _, _, _, buyout_price = GetAuctionItemInfo(type, index)
 		PlaceAuctionBid(type, index, amount)
 		if money >= amount then
 			locked = true
 			local send_signal, signal_received = signal()
 			thread(when, signal_received, function()
+				if name and amount > 0 and buyout_price and amount >= buyout_price then
+					local ps = require 'aux.gui.purchase_summary'
+					ps.add_purchase(name, texture, count, amount)
+					ps.update_display()
+				end
 				do (on_success or nop)() end
 				locked = false
 			end)
