@@ -35,7 +35,9 @@ function M:render()
 			row.item.name:SetText('[' .. item_record.name .. ']')
 			local color = ITEM_QUALITY_COLORS[item_record.quality]
 			row.item.name:SetTextColor(color.r, color.g, color.b)
-			if item_record.aux_quantity > 1 then
+			if item_record.queued then
+				row.item.count:SetText('|cff00ff00' .. (item_record.aux_quantity > 1 and item_record.aux_quantity or '*') .. '|r')
+			elseif item_record.aux_quantity > 1 then
 				row.item.count:SetText(item_record.aux_quantity)
 			else
 				row.item.count:SetText()

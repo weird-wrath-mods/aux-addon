@@ -115,6 +115,9 @@ function update_inventory_listing()
 		local settings = read_settings(record.key)
 		return record.aux_quantity > 0 and (not settings.hidden or show_hidden_checkbox:GetChecked())
 	end))
+	for _, record in pairs(records) do
+		record.queued = read_settings(record.key).queued
+	end
 	sort(records, function(a, b) return a.name < b.name end)
 	item_listing.populate(inventory_listing, records)
 end
