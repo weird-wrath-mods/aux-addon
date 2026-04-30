@@ -12,7 +12,8 @@ local search_tab = require 'aux.tabs.search'
 local tooltip = require 'aux.core.tooltip'
 local cache = require 'aux.core.cache'
 
-local price_per_unit = false
+-- Default to per-item; respect any persisted choice. Saved as aux_price_per_item.
+local price_per_unit = aux_price_per_item ~= false
 
 local HEAD_HEIGHT = 27
 local HEAD_SPACE = 2
@@ -566,6 +567,7 @@ local methods = {
 
         if button == 'RightButton' and rt.headCells[this.columnIndex].info.isPrice then
             price_per_unit = not price_per_unit
+            _G.aux_price_per_item = price_per_unit
             for _, cell in pairs(rt.headCells) do
                 if cell.info.isPrice then
                     cell:SetText(cell.info.title[price_per_unit and 1 or 2])
