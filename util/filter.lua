@@ -153,6 +153,15 @@ M.filters = {
         end,
     },
 
+    ['stack'] = {
+        input_type = 'number',
+        validator = function(size)
+            return function(auction_record)
+                return auction_record.aux_quantity == size
+            end
+        end,
+    },
+
     ['bid-profit'] = {
         input_type = 'money',
         validator = function(amount)

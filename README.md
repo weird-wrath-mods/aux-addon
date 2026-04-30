@@ -56,7 +56,12 @@ The most advanced auction house addOn for the 3.3.5 client with some features mo
 ## Slash Commands
 ### General
 **/aux ignore owner** (Disables waiting for owner names when scanning. Recommended)<br/>
+**/aux uc** (Toggle the -1c shave when undercutting. On by default.)<br/>
+### Post
 **/aux post bid** (Adds a bid price listing to the post tab)<br/>
+**/aux post stack** (Remember the chosen stack size per item. On by default.)<br/>
+**/aux post duration 12|24|48** (Default duration applied to newly-tracked items.)<br/>
+**/aux purchase summary** (Toggle the per-session purchase summary panel above the AH frame.)<br/>
 ### Tooltip
 **/aux tooltip value**<br/>
 **/aux tooltip daily**<br/>
@@ -64,6 +69,66 @@ The most advanced auction house addOn for the 3.3.5 client with some features mo
 **/aux tooltip disenchant distribution**<br/>
 **/aux tooltip vendor buy**<br/>
 **/aux tooltip vendor sell**<br/>
+
+## Advanced Features
+
+### Auto-bid for Saved Searches
+Right-click a favorite search to enable Auto Buy or Auto Bid on it. While the
+search is running, any auction matching the filter (and not owned by you) is
+automatically bought at buyout / bid up to the next increment. Auto-bid skips
+auctions where you are already the high bidder, so you can't accidentally
+bid against yourself. Marked favorites show an `X` (auto-buy) or `Y`
+(auto-bid) in the new "Auto" column.
+
+### Autopricing
+On the Post tab, leaving the bid price at 0 triggers an autopricing pass
+when you click Post. It derives a price from your historical value, daily
+market value, vendor info and disenchant value. If the data suggests
+disenchanting or vendoring would beat the auction outcome, the post is
+aborted with a chat warning instead of going through.
+
+### Post Keybind
+The keybindings UI exposes an **Aux Post** binding under the AUX header.
+Bind it once, then press the key to post the currently selected item with
+its current settings — useful for mass-posting many items.
+
+### Per-Item Stack Memory
+With `aux_post_stack` on (default), the stack size you set on the slider is
+remembered per item. Switching to another item and back restores your
+chosen stack. Items you have queued for batch posting show their stack
+count in green in the inventory listing.
+
+### Post-All / Quick Post
+The Post tab gains a **Post All** button and a **Quick post** checkbox.
+Tick the checkbox on each item you want to mass-post; press Post All and
+the addon scans each queued item, undercuts the cheapest competitor at or
+above historical value, and posts the appropriate full stacks + remainder.
+Sorted by total historical value (high-value items posted first).
+
+### Crafting Cost
+Reagent cost is shown in the Craft and TradeSkill UI labels and is also
+fed to ATSW (Advanced TradeSkill Window) when present.
+
+### Disenchant Tweaks
+Twilight Cultist set pieces and enchanting-created wands are excluded
+from the disenchant value/distribution calculations. The disenchant value
+also clamps to `min(daily, market)` to insulate against transient low
+enchanting-mat prices.
+
+### Extra Filters
+- **isgear** — matches anything that occupies an inventory slot (whites,
+  greens of inconsistent value).
+- **stack** *N* — matches auctions whose stack size equals *N*.
+- **disenchant-percent** / **bid-disenchant-percent** — like
+  `percent` / `bid-percent` but compared against the disenchant value
+  rather than the market value. Useful for sniping items that are always
+  profitable to DE.
+
+### Purchase Summary
+A small panel appears above the AH window summarizing what you've bought
+this session (item, count, gold spent, with a running total). Click the
+panel to open a copy-pastable text dump (player name + date) suitable for
+guild tracking spreadsheets. Disable with `/aux purchase summary`.
 
 ## Usage
 ### General
