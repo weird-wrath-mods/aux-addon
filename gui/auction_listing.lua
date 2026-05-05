@@ -666,7 +666,6 @@ local methods = {
         wipe(self.rowInfo)
         self.rowInfo.numDisplayRows = 0
         self.isSorted = nil
-        self:SetSelectedRecord(nil, true)
 
 	    local records = self.records
 

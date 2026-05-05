@@ -72,7 +72,7 @@ do
                 found_index = index
 
                 cancel_button:SetScript('OnClick', function()
-                    if scan_util.test(record, index) and listing:ContainsRecord(record) then
+                    if scan_util.test(record, index) then
                         cancel_auction(index, function() listing:RemoveAuctionRecord(record) end)
                     end
                 end)
