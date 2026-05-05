@@ -62,7 +62,7 @@ function M.extend_tooltip(tooltip, link, quantity)
     if item_info and item_info.level and item_info.level > 0 then
         level = item_info.level
     else
-        -- On lit le texte du tooltip pour récupérer "Item Level XX"
+        -- Fallback 1: parse "Item Level XX" from the tooltip text.
         for i = 1, tooltip:NumLines() do
             local line = _G[tooltip:GetName() .. "TextLeft" .. i]
             if line then
@@ -75,6 +75,12 @@ function M.extend_tooltip(tooltip, link, quantity)
                     end
                 end
             end
+        end
+        -- Fallback 2: read iLvl directly from the link via _G.GetItemInfo (bypasses
+        -- the aux wrapper that discards iLvl). Catches quest rewards and heirlooms
+        -- whose minLevel is 0 and whose tooltip omits "Item Level XX".
+        if not level or level == 0 then
+            level = select(4, _G.GetItemInfo(link))
         end
     end
 

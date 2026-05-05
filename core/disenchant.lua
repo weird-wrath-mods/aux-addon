@@ -143,16 +143,55 @@ function M.distribution(slot, quality, level, item_id)
 			)
         elseif level <= 65 then
             return temp-A(
-	            temp-O('item_id', 22445, 'min_quantity', 2, 'max_quantity', 3, 'probability', p(.75, .22)),
-	            temp-O('item_id', 22447, 'min_quantity', 2, 'max_quantity', 3, 'probability', p(.22, .75)),
+	            temp-O('item_id', 22445, 'min_quantity', 1, 'max_quantity', 3, 'probability', p(.75, .22)),
+	            temp-O('item_id', 22447, 'min_quantity', 1, 'max_quantity', 3, 'probability', p(.22, .75)),
 	            temp-O('item_id', 22448, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
 			)
         elseif level <= 70 then
             return temp-A(
-	            temp-O('item_id', 22445, 'min_quantity', 2, 'max_quantity', 3, 'probability', p(.75, .22)),
+	            temp-O('item_id', 22445, 'min_quantity', 2, 'max_quantity', 5, 'probability', p(.75, .22)),
 	            temp-O('item_id', 22446, 'min_quantity', 1, 'max_quantity', 2, 'probability', p(.22, .75)),
-	            temp-O('item_id', 22445, 'min_quantity', 2, 'max_quantity', 5, 'probability', p(.03, .03))
+	            temp-O('item_id', 22449, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
 			)
+        elseif level <= 72 then
+            return temp-A(
+                temp-O('item_id', 34054, 'min_quantity', 2, 'max_quantity', 3, 'probability', p(.75, .22)),
+                temp-O('item_id', 34056, 'min_quantity', 1, 'max_quantity', 2, 'probability', p(.22, .75)),
+                temp-O('item_id', 34053, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
+            )
+        elseif level <= 80 then
+            return temp-A(
+                temp-O('item_id', 34054, 'min_quantity', 4, 'max_quantity', 7, 'probability', p(.75, .22)),
+                temp-O('item_id', 34055, 'min_quantity', 1, 'max_quantity', 2, 'probability', p(.22, .75)),
+                temp-O('item_id', 34052, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
+            )
+        -- iLvl-axis extensions. Reached when level > 80, which only happens via the
+        -- iLvl fallback (reqLvl caps at 80). Boundaries from the molten 3.3.5 guide.
+        elseif level <= 99 then
+            return temp-A(
+                temp-O('item_id', 22445, 'min_quantity', 1, 'max_quantity', 3, 'probability', p(.75, .22)),
+                temp-O('item_id', 22447, 'min_quantity', 1, 'max_quantity', 3, 'probability', p(.22, .75)),
+                temp-O('item_id', 22448, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
+            )
+        elseif level <= 120 then
+            return temp-A(
+                temp-O('item_id', 22445, 'min_quantity', 2, 'max_quantity', 5, 'probability', p(.75, .22)),
+                temp-O('item_id', 22446, 'min_quantity', 1, 'max_quantity', 2, 'probability', p(.22, .75)),
+                temp-O('item_id', 22449, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
+            )
+        elseif level <= 151 then
+            -- AC DE_ID 15 (ilvl 130-151): Infinite Dust 1-3, Lesser Cosmic 1-2.
+            return temp-A(
+                temp-O('item_id', 34054, 'min_quantity', 1, 'max_quantity', 3, 'probability', p(.75, .22)),
+                temp-O('item_id', 34056, 'min_quantity', 1, 'max_quantity', 2, 'probability', p(.22, .75)),
+                temp-O('item_id', 34053, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
+            )
+        elseif level <= 200 then
+            return temp-A(
+                temp-O('item_id', 34054, 'min_quantity', 4, 'max_quantity', 7, 'probability', p(.75, .22)),
+                temp-O('item_id', 34055, 'min_quantity', 1, 'max_quantity', 2, 'probability', p(.22, .75)),
+                temp-O('item_id', 34052, 'min_quantity', 1, 'max_quantity', 1, 'probability', p(.03, .03))
+            )
         end
     elseif quality == RARE then
         if level <= 20 then
@@ -174,7 +213,24 @@ function M.distribution(slot, quality, level, item_id)
         elseif level <= 60 then
             return temp-A(temp-O('item_id', 14344, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 20725, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
         elseif level <= 65 then
+            -- AC DE_ID 50 (ilvl 70-97 rare): Small Prismatic + Nexus Crystal at 0.5%.
             return temp-A(temp-O('item_id', 22448, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 20725, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        elseif level <= 70 then
+            return temp-A(temp-O('item_id', 22449, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 22450, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        elseif level <= 72 then
+            return temp-A(temp-O('item_id', 34053, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 34057, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        elseif level <= 80 then
+            return temp-A(temp-O('item_id', 34052, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 34057, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        -- iLvl-axis extensions for the iLvl fallback path.
+        elseif level <= 99 then
+            -- AC DE_ID 50 (ilvl 70-97): Small Prismatic + Nexus Crystal.
+            return temp-A(temp-O('item_id', 22448, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 20725, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        elseif level <= 120 then
+            return temp-A(temp-O('item_id', 22449, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 22450, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        elseif level <= 151 then
+            return temp-A(temp-O('item_id', 34053, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 34057, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
+        elseif level <= 200 then
+            return temp-A(temp-O('item_id', 34052, 'min_quantity', 1, 'max_quantity', 1, 'probability', .995), temp-O('item_id', 34057, 'min_quantity', 1, 'max_quantity', 1, 'probability', .005))
         end
     elseif quality == EPIC then
         if level <= 40 then
@@ -188,7 +244,17 @@ function M.distribution(slot, quality, level, item_id)
         elseif level <= 60 then
             return temp-A(temp-O('item_id', 20725, 'min_quantity', 1, 'max_quantity', 2, 'probability', 1))
         elseif level <= 65 then
+            -- AC DE_ID 65 (ilvl 61-92 epic): Nexus Crystal 1-2.
+            return temp-A(temp-O('item_id', 20725, 'min_quantity', 1, 'max_quantity', 2, 'probability', 1))
+        elseif level <= 70 then
             return temp-A(temp-O('item_id', 22450, 'min_quantity', 1, 'max_quantity', 2, 'probability', 1))
+        elseif level <= 80 then
+            return temp-A(temp-O('item_id', 34057, 'min_quantity', 1, 'max_quantity', 2, 'probability', 1))
+        -- iLvl-axis extensions for the iLvl fallback path.
+        elseif level <= 138 then
+            return temp-A(temp-O('item_id', 22450, 'min_quantity', 1, 'max_quantity', 2, 'probability', 1))
+        elseif level <= 285 then
+            return temp-A(temp-O('item_id', 34057, 'min_quantity', 1, 'max_quantity', 2, 'probability', 1))
         end
     end
     return {}
