@@ -396,13 +396,33 @@ do
 				state = FOUND
 				found_index = index
 
+				local function remove_and_advance()
+					local prev_index
+					for i, row in pairs(search.table.rows) do
+						if row:IsVisible() and row.record == record then
+							prev_index = i
+							break
+						end
+					end
+					search.table:RemoveAuctionRecord(record)
+					if not search.table:GetSelection() then
+						local row = prev_index and search.table.rows[prev_index]
+						if not (row and row:IsVisible() and row.record) then
+							row = search.table.rows[1]
+						end
+						if row and row:IsVisible() and row.record then
+							search.table:SetSelectedRecord(row.record)
+						end
+					end
+				end
+
 				if not record.high_bidder then
 					bid_button:SetScript('OnClick', function()
-						if scan_util.test(record, index) and search.table:ContainsRecord(record) then
+						if scan_util.test(record, index) then
 							place_bid('list', index, record.bid_price, record.bid_price < record.buyout_price and function()
 								info.bid_update(record)
 								search.table:SetDatabase()
-							end or function() search.table:RemoveAuctionRecord(record) end)
+							end or remove_and_advance)
 						end
 					end)
 					bid_button:Enable()
@@ -412,8 +432,8 @@ do
 
 				if record.buyout_price > 0 then
 					buyout_button:SetScript('OnClick', function()
-						if scan_util.test(record, index) and search.table:ContainsRecord(record) then
-							place_bid('list', index, record.buyout_price, function() search.table:RemoveAuctionRecord(record) end)
+						if scan_util.test(record, index) then
+							place_bid('list', index, record.buyout_price, remove_and_advance)
 						end
 					end)
 					buyout_button:Enable()
