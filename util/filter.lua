@@ -520,7 +520,7 @@ function blizzard_query(filter)
         subclass_index = info.item_subclass_index(class_index or 0, item_info.subclass)
         slot_index = info.item_slot_index(class_index or 0, subclass_index or 0, item_info.slot)
     end
-    if item_info then
+    if filters.exact and item_info then
         query.min_level = item_info.level
         query.max_level = item_info.level
         query.usable = item_info.usable
