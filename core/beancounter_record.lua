@@ -10,6 +10,10 @@ local pending_posts = {}
 local pending_bids  = {}
 local last_multi    = {}
 
+local function bc_owns_recording()
+	return _G.BeanCounter and _G.BeanCounter.API and _G.BeanCounter.API.isLoaded
+end
+
 local function find_locked_item()
 	for bag = 0, 4 do
 		for slot = 1, GetContainerNumSlots(bag) do
@@ -45,6 +49,7 @@ local function on_post_failed()
 end
 
 local function on_start_auction(min_bid, buyout, run_time, count, stack_number)
+	if bc_owns_recording() then return end
 	local name = GetAuctionSellItemInfo()
 	if not name or not count then return end
 	local link, locked_count = find_locked_item()
@@ -85,6 +90,7 @@ local function on_bid_failed()
 end
 
 local function on_place_auction_bid(list_type, index, bid)
+	if bc_owns_recording() then return end
 	local name, _, count, _, _, _, _, _, buyout, _, high_bidder, owner = GetAuctionItemInfo(list_type, index)
 	local link = GetAuctionItemLink(list_type, index)
 	local time_left = GetAuctionItemTimeLeft(list_type, index)
@@ -194,6 +200,7 @@ local function find_link_for_name(name)
 end
 
 local function process_inbox()
+	if bc_owns_recording() then return end
 	local n = GetInboxNumItems()
 	for i = 1, n do
 		local _, _, sender, subject, money, _, days_left = GetInboxHeaderInfo(i)
