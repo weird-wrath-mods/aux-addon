@@ -48,7 +48,7 @@ function M.container_item(bag, slot)
         local item_id, suffix_id, unique_id, enchant_id = parse_link(link)
         local item_info = temp-item(item_id, suffix_id, unique_id, enchant_id)
 
-        local texture, count, locked, quality, readable, lootable = GetContainerItemInfo(bag, slot) -- quality not working?
+        local texture, count, locked, quality, readable, lootable = GetContainerItemInfo(bag, slot)
         local tooltip, tooltip_money = tooltip('bag', bag, slot)
         local max_charges = max_item_charges(item_id)
         local charges = max_charges and item_charges(tooltip)
@@ -69,7 +69,7 @@ function M.container_item(bag, slot)
             'type', item_info.type,
             'subtype', item_info.subtype,
             'slot', item_info.slot,
-            'quality', item_info.quality,
+            'quality', item_info.quality or quality or 0,
             'max_stack', item_info.max_stack,
 
             'count', count,
