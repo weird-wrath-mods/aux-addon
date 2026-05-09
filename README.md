@@ -69,6 +69,8 @@ The most advanced auction house addOn for the 3.3.5 client with some features mo
 **/aux tooltip disenchant distribution**<br/>
 **/aux tooltip vendor buy**<br/>
 **/aux tooltip vendor sell**<br/>
+**/aux tooltip bought**<br/>
+**/aux tooltip sold**<br/>
 
 ## Advanced Features
 
@@ -104,6 +106,9 @@ Tick the checkbox on each item you want to mass-post; press Post All and
 the addon scans each queued item, undercuts the cheapest competitor at or
 above historical value, and posts the appropriate full stacks + remainder.
 Sorted by total historical value (high-value items posted first).
+
+### BeanCounter Tooltip
+If BeanCounter is installed and enabled, tooltip lines show your last bought price and your 30-day sold/failed counts on the item. Toggle with `/aux tooltip bought` and `/aux tooltip sold`.
 
 ### Crafting Cost
 Reagent cost is shown in the Craft and TradeSkill UI labels and is also

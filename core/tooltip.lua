@@ -8,6 +8,7 @@ local money =  require 'aux.util.money'
 local cache = require 'aux.core.cache'
 local disenchant = require 'aux.core.disenchant'
 local history = require 'aux.core.history'
+local beancounter = require 'aux.core.beancounter'
 local auction_listing = require 'aux.gui.auction_listing'
 
 local UNKNOWN = GRAY_FONT_COLOR_CODE .. '?' .. FONT_COLOR_CODE_CLOSE
@@ -135,6 +136,26 @@ function M.extend_tooltip(tooltip, link, quantity)
             tooltip:AddLine('Today: ' .. (market_value and money.to_string2(market_value * quantity) ..
                 ' (' .. auction_listing.percentage_historical(round(market_value / value * 100)) .. ')' or UNKNOWN),
                 color.tooltip.value())
+        end
+    end
+
+    if beancounter.available() then
+        if settings.bc_bought then
+            local price, t = beancounter.last_bid(link, quantity)
+            if price and price > 0 then
+                local age = t and floor((time() - tonumber(t)) / 86400)
+                tooltip:AddLine('Bought: ' .. money.to_string2(price) ..
+                    (age and ' (' .. age .. 'd ago)' or ''),
+                    color.tooltip.value())
+            end
+        end
+        if settings.bc_sold then
+            local ok, fail, ok_stk, fail_stk = beancounter.sold_failed(link, 30)
+            if ok and (ok > 0 or fail > 0) then
+                tooltip:AddLine('Sold 30d: ' .. ok .. '/' .. (ok + fail) ..
+                    ' (' .. ok_stk .. '/' .. (ok_stk + fail_stk) .. ' items)',
+                    color.tooltip.value())
+            end
         end
     end
 
