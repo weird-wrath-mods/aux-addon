@@ -141,16 +141,16 @@ function M.extend_tooltip(tooltip, link, quantity)
 
     if beancounter.available() then
         if settings.bc_bought then
-            local price, t = beancounter.last_bid(link, quantity)
-            if price and price > 0 then
-                local age = t and floor((time() - tonumber(t)) / 86400)
-                tooltip:AddLine('Bought: ' .. money.to_string2(price) ..
+            local last = beancounter.last_buy(item_id)
+            if last and last.money > 0 then
+                local age = last.time > 0 and floor((time() - last.time) / 86400)
+                tooltip:AddLine('Bought: ' .. money.to_string2(last.money) ..
                     (age and ' (' .. age .. 'd ago)' or ''),
                     color.tooltip.value())
             end
         end
         if settings.bc_sold then
-            local ok, fail, ok_stk, fail_stk = beancounter.sold_failed(link, 30)
+            local ok, fail, ok_stk, fail_stk = beancounter.sold_failed(item_id, 30)
             if ok and (ok > 0 or fail > 0) then
                 tooltip:AddLine('Sold 30d: ' .. ok .. '/' .. (ok + fail) ..
                     ' (' .. ok_stk .. '/' .. (ok_stk + fail_stk) .. ' items)',

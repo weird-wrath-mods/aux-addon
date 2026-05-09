@@ -3,7 +3,7 @@
 ## Title: aux
 ## Notes: Auction House replacement
 ## OptionalDeps: BeanCounter
-## SavedVariables: aux, aux_scale, aux_post_bid, aux_post_stack, aux_post_stack_default_migrated, aux_post_duration, aux_undercut, aux_price_per_item, aux_purchase_summary, aux_ignore_owner, aux_items, aux_item_ids, aux_auctionable_items, aux_merchant_buy, aux_merchant_sell
+## SavedVariables: aux, aux_scale, aux_post_bid, aux_post_stack, aux_post_stack_default_migrated, aux_post_duration, aux_undercut, aux_price_per_item, aux_purchase_summary, aux_ignore_owner, aux_items, aux_item_ids, aux_auctionable_items, aux_merchant_buy, aux_merchant_sell, BeanCounterDB, BeanCounterDBSettings, BeanCounterDBNames, BeanCounterAccountDB
 
 libs\compat.lua
 libs\module.lua
@@ -53,6 +53,9 @@ tabs\auctions\frame.lua
 
 tabs\bids\core.lua
 tabs\bids\frame.lua
+
+tabs\beancounter\core.lua
+tabs\beancounter\frame.lua
 
 localization.lua
 
