@@ -32,6 +32,7 @@ core\scan.lua
 core\stack.lua
 core\post.lua
 core\beancounter.lua
+core\beancounter_record.lua
 core\tooltip.lua
 
 gui\listing.lua
