@@ -34,7 +34,6 @@ end
 function rebuild_rows()
 	local rows = T
 	if not bc.available() then
-		print('aux bc: no BeanCounterDB for ' .. (GetRealmName() or '?') .. ' / ' .. (UnitName('player') or '?'))
 		listing:SetData(rows)
 		return
 	end
@@ -73,7 +72,6 @@ function rebuild_rows()
 	end
 
 	table.sort(rows, function(a, b) return a.entry.time > b.entry.time end)
-	print('aux bc: ' .. getn(rows) .. ' rows, listing.numRows=' .. (listing.numRows or '?'))
 	listing:SetData(rows)
 end
 
