@@ -5,6 +5,10 @@ include 'aux'
 
 local info = require 'aux.util.info'
 local history = require 'aux.core.history'
+local autobuy = require 'aux.gui.autobuy'
+
+local autobuy_warned -- one-time notice if the gui module hasn't been loaded yet
+local pending_buys   -- auto-buy/bid matches collected on the current page, awaiting the button
 
 local PAGE_SIZE = 50
 
@@ -12,6 +16,11 @@ do
 	local scan_states = {}
 
 	function M.start(params)
+		(autobuy.disarm or nop)() -- a new scan supersedes any parked match (nop until gui loads)
+		if (params.auto_buy_validator or params.auto_bid_validator) and not autobuy.present and not autobuy_warned then
+			autobuy_warned = true
+			DEFAULT_CHAT_FRAME:AddMessage('|cffff8800aux:|r Auto-Buy module not loaded yet. Fully restart the client (exit to desktop), not just /reload.')
+		end
 		local old_state = scan_states[params.type]
 		if old_state then
 			abort(old_state.id)
@@ -120,8 +129,29 @@ do
 	end
 end
 
+function advance_page()
+	if query.blizzard_query and state.page < last_page(state.total_auctions) then
+		state.page = state.page + 1
+		return submit_query()
+	else
+		return scan()
+	end
+end
+
+function page_done()
+	-- hand any collected matches to the button, parking until the user drains them;
+	-- only then re-query (a re-query would re-index the page out from under their indices)
+	if autobuy.present and getn(pending_buys) > 0 then
+		local send_signal, signal_received = signal()
+		when(signal_received, advance_page)
+		return autobuy.present(pending_buys, send_signal)
+	end
+	return advance_page()
+end
+
 function scan_page(i)
 	i = i or 1
+	if i == 1 then pending_buys = T end
 
 	if not state.page then
 		_,  state.total_auctions = GetNumAuctionItems(state.params.type)
@@ -129,12 +159,7 @@ function scan_page(i)
 
 	if state.params.type == 'list' and i > PAGE_SIZE then
 		do (state.params.on_page_scanned or nop)() end
-		if query.blizzard_query and state.page < last_page(state.total_auctions) then
-			state.page = state.page + 1
-			return submit_query()
-		else
-			return scan()
-		end
+		return page_done()
 	elseif state.params.type ~= 'list' and i > state.total_auctions then
 		return complete()
 	end
@@ -148,19 +173,21 @@ function scan_page(i)
 
 		history.process_auction(auction_info)
 
-		if (state.params.auto_buy_validator or nop)(auction_info)
+		local autobuy_match
+		if autobuy.present
+			and (state.params.auto_buy_validator or nop)(auction_info)
 			and auction_info.buyout_price > 0
 			and auction_info.owner ~= UnitName('player') then
-			local send_signal, signal_received = signal()
-			when(signal_received, scan_page, i)
-			return place_bid(auction_info.query_type, auction_info.index, auction_info.buyout_price, send_signal)
-		elseif (state.params.auto_bid_validator or nop)(auction_info)
+			tinsert(pending_buys, O('kind', 'buy', 'record', copy(auction_info)))
+			autobuy_match = true
+		elseif autobuy.present
+			and (state.params.auto_bid_validator or nop)(auction_info)
 			and auction_info.owner ~= UnitName('player')
 			and auction_info.high_bidder == nil then
-			local send_signal, signal_received = signal()
-			when(signal_received, scan_page, i)
-			return place_bid(auction_info.query_type, auction_info.index, auction_info.bid_price, send_signal)
-		elseif not query.validator or query.validator(auction_info) then
+			tinsert(pending_buys, O('kind', 'bid', 'record', copy(auction_info)))
+			autobuy_match = true
+		end
+		if not autobuy_match and (not query.validator or query.validator(auction_info)) then
 			do (state.params.on_auction or nop)(auction_info) end
 		end
 	end

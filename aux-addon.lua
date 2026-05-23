@@ -171,7 +171,8 @@ do
 			end)
 			thread(when, later(5), send_signal)
 			event_listener('CHAT_MSG_SYSTEM', function(kill)
-				if arg1 == ERR_AUCTION_BID_PLACED then
+				-- Chromie 3.3.5 sends 'Bid accepted.' rather than ERR_AUCTION_BID_PLACED
+				if arg1 == ERR_AUCTION_BID_PLACED or arg1 == 'Bid accepted.' then
 					send_signal()
 					kill()
 				end
