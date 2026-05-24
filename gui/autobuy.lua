@@ -8,7 +8,7 @@ local money = require 'aux.util.money'
 local scan_util = require 'aux.util.scan'
 local search = require 'aux.tabs.search'
 
-local frame, item_label, action_button, next_button
+local frame, item_label, action_button
 
 -- this page's matches, sorted cheapest-first, or nil. PlaceAuctionBid is dropped on Chromie
 -- outside a hardware-event context, so the scan parks on each page and the bids fire from this
@@ -83,7 +83,7 @@ local function ensure_frame()
 	local parent = search.results_panel()
 	frame = CreateFrame('Frame', nil, parent)
 	frame:SetFrameStrata('DIALOG')
-	gui.set_size(frame, 320, 116)
+	gui.set_size(frame, 320, 92)
 	frame:SetPoint('CENTER', parent, 'CENTER', 0, 0)
 	gui.set_window_style(frame)
 
@@ -99,26 +99,19 @@ local function ensure_frame()
 	item_label:SetJustifyH('CENTER')
 
 	action_button = gui.button(frame, gui.font_size.large)
-	action_button:SetPoint('TOPLEFT', 10, -44)
-	action_button:SetPoint('TOPRIGHT', -10, -44)
-	action_button:SetHeight(38)
+	action_button:SetPoint('BOTTOMLEFT', 10, 10)
+	action_button:SetPoint('BOTTOMRIGHT', -10, 10)
+	action_button:SetHeight(40)
 	action_button:RegisterForClicks('LeftButtonUp', 'RightButtonUp')
 	action_button:SetScript('OnClick', function()
 		if arg1 == 'RightButton' then advance() else act() end
 	end)
 
-	next_button = gui.button(frame, gui.font_size.medium)
-	next_button:SetPoint('BOTTOMLEFT', 10, 8)
-	next_button:SetPoint('BOTTOMRIGHT', -10, 8)
-	next_button:SetHeight(22)
-	next_button:SetText('Next page >>')
-	next_button:SetScript('OnClick', finish) -- abandon this page's leftovers, scan the next
-
 	frame:Hide()
 end
 
--- present(buys, on_done): show this page's matches; the user buys/skips them or hits Next page,
--- then on_done resumes the scan to the next page (called automatically when the queue empties).
+-- present(buys, on_done): show this page's matches; as the user buys/skips them the queue
+-- drains, and on_done resumes the scan to the next page once it's empty.
 function M.present(buys, on_done)
 	ensure_frame()
 	queue = buys
