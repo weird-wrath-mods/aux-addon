@@ -74,13 +74,19 @@ The most advanced auction house addOn for the 3.3.5 client with some features mo
 
 ## Advanced Features
 
-### Auto-bid for Saved Searches
-Right-click a favorite search to enable Auto Buy or Auto Bid on it. While the
-search is running, any auction matching the filter (and not owned by you) is
-automatically bought at buyout / bid up to the next increment. Auto-bid skips
-auctions where you are already the high bidder, so you can't accidentally
-bid against yourself. Marked favorites show an `X` (auto-buy) or `Y`
-(auto-bid) in the new "Auto" column.
+### Auto-buy / Auto-bid for Saved Searches
+Right-click a favorite search to toggle Auto Buy or Auto Bid. Marked favorites
+show an `X` (auto-buy) or `Y` (auto-bid) in the "Auto" column.
+
+When you run the search it stops on each page that has matching auctions and
+shows a button centered in the results, offering the matches cheapest first.
+Left-click buys or bids the current match, right-click skips it. Once the page's
+matches are cleared the scan advances to the next page on its own, or click
+"Next page" to move on early. Auto-bid skips auctions where you are already the
+high bidder.
+
+Purchases are one-per-click by design: the server only honors auction buys made
+from a real button press, so this can't run fully unattended.
 
 ### Autopricing
 On the Post tab, leaving the bid price at 0 triggers an autopricing pass
