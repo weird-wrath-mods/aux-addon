@@ -20,6 +20,8 @@ frame.filter:SetAllPoints(AuxFrame.content)
 frame.results = gui.panel(frame)
 frame.results:SetAllPoints(AuxFrame.content)
 
+function M.results_panel() return frame.results end
+
 frame.saved = CreateFrame('Frame', nil, frame)
 frame.saved:SetAllPoints(AuxFrame.content)
 

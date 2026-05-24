@@ -8,7 +8,7 @@ local history = require 'aux.core.history'
 local autobuy = require 'aux.gui.autobuy'
 
 local autobuy_warned -- one-time notice if the gui module hasn't been loaded yet
-local pending_buys   -- auto-buy/bid matches collected on the current page, awaiting the button
+local pending_buys   -- this page's auto-buy/bid matches, handed to the button at page end
 
 local PAGE_SIZE = 50
 
@@ -16,7 +16,9 @@ do
 	local scan_states = {}
 
 	function M.start(params)
-		(autobuy.disarm or nop)() -- a new scan supersedes any parked match (nop until gui loads)
+		-- only a new 'list' scan supersedes the parked autobuy scan; bidder/owner scans (e.g. the
+		-- bids-tab refresh triggered by a buyout) run on different data and must not clear the queue
+		if params.type == 'list' then (autobuy.disarm or nop)() end
 		if (params.auto_buy_validator or params.auto_bid_validator) and not autobuy.present and not autobuy_warned then
 			autobuy_warned = true
 			DEFAULT_CHAT_FRAME:AddMessage('|cffff8800aux:|r Auto-Buy module not loaded yet. Fully restart the client (exit to desktop), not just /reload.')
@@ -139,8 +141,9 @@ function advance_page()
 end
 
 function page_done()
-	-- hand any collected matches to the button, parking until the user drains them;
-	-- only then re-query (a re-query would re-index the page out from under their indices)
+	-- present this page's matches and park; the user buys/skips them (or hits Next page),
+	-- then the button resumes the scan to the next page. Parking keeps the page loaded so the
+	-- indices stay valid. Pages with no matches advance immediately (no user wait).
 	if autobuy.present and getn(pending_buys) > 0 then
 		local send_signal, signal_received = signal()
 		when(signal_received, advance_page)
@@ -173,6 +176,7 @@ function scan_page(i)
 
 		history.process_auction(auction_info)
 
+		-- auto-buy/bid: collect this page's matches for the button (presented at page end)
 		local autobuy_match
 		if autobuy.present
 			and (state.params.auto_buy_validator or nop)(auction_info)

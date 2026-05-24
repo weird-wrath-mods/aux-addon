@@ -6,14 +6,15 @@ include 'aux'
 local gui = require 'aux.gui'
 local money = require 'aux.util.money'
 local scan_util = require 'aux.util.scan'
+local search = require 'aux.tabs.search'
 
-local frame, item_label, action_button
+local frame, item_label, action_button, next_button
 
--- queue of O('kind', 'record') for the current page, sorted cheapest-first, or nil.
--- PlaceAuctionBid is dropped on Chromie unless it runs in a hardware-event context, so the
--- scan parks on a page's matches and the actual bids fire from this button's clicks.
+-- this page's matches, sorted cheapest-first, or nil. PlaceAuctionBid is dropped on Chromie
+-- outside a hardware-event context, so the scan parks on each page and the bids fire from this
+-- button's clicks. resume_scan advances the parked scan to the next page once we're done here.
 local queue
-local resume_scan -- continues the parked scan once the queue is drained
+local resume_scan
 
 local function unit_price(entry)
 	return entry.kind == 'buy' and entry.record.unit_buyout_price or entry.record.unit_bid_price
@@ -23,9 +24,8 @@ local function price(entry)
 	return entry.kind == 'buy' and entry.record.buyout_price or entry.record.bid_price
 end
 
--- index of this auction on the currently loaded page; the stored index is tried first
--- (valid between rapid clicks, since the client list isn't re-indexed until a re-query),
--- then a local fallback scan handles any shift. No server round-trip either way.
+-- current index of this auction on the loaded page; stored index first (valid between clicks,
+-- the client list isn't re-indexed until a re-query), then a local fallback scan after a shift.
 local function locate(record)
 	if scan_util.test(record, record.index) then return record.index end
 	for idx = 1, 50 do
@@ -43,6 +43,7 @@ local function update_label()
 	action_button:SetText(format('%s   %s   (%d)', head.kind == 'buy' and 'BUYOUT' or 'BID', money.to_string(price(head), true, true), getn(queue)))
 end
 
+-- done with this page: hide and resume the parked scan toward the next page
 local function finish()
 	queue = nil
 	if frame then frame:Hide() end
@@ -51,7 +52,9 @@ local function finish()
 	do (r or nop)() end
 end
 
+-- drop the current match; if the page is now empty, move the scan on
 local function advance()
+	if not queue then return end
 	tremove(queue, 1)
 	if getn(queue) == 0 then finish() else update_label() end
 end
@@ -75,10 +78,13 @@ end
 local function ensure_frame()
 	if frame then return end
 
-	frame = CreateFrame('Frame', nil, AuxFrame.content)
+	-- parented to the search results panel so it hides/shows automatically as the user
+	-- navigates between subtabs and aux tabs (the panel is only visible on the results page)
+	local parent = search.results_panel()
+	frame = CreateFrame('Frame', nil, parent)
 	frame:SetFrameStrata('DIALOG')
-	gui.set_size(frame, 320, 92)
-	frame:SetPoint('CENTER', AuxFrame.content, 'CENTER', 0, 0)
+	gui.set_size(frame, 320, 116)
+	frame:SetPoint('CENTER', parent, 'CENTER', 0, 0)
 	gui.set_window_style(frame)
 
 	local title = gui.label(frame, gui.font_size.small)
@@ -93,19 +99,26 @@ local function ensure_frame()
 	item_label:SetJustifyH('CENTER')
 
 	action_button = gui.button(frame, gui.font_size.large)
-	action_button:SetPoint('BOTTOMLEFT', 10, 10)
-	action_button:SetPoint('BOTTOMRIGHT', -10, 10)
-	action_button:SetHeight(40)
+	action_button:SetPoint('TOPLEFT', 10, -44)
+	action_button:SetPoint('TOPRIGHT', -10, -44)
+	action_button:SetHeight(38)
 	action_button:RegisterForClicks('LeftButtonUp', 'RightButtonUp')
 	action_button:SetScript('OnClick', function()
 		if arg1 == 'RightButton' then advance() else act() end
 	end)
 
+	next_button = gui.button(frame, gui.font_size.medium)
+	next_button:SetPoint('BOTTOMLEFT', 10, 8)
+	next_button:SetPoint('BOTTOMRIGHT', -10, 8)
+	next_button:SetHeight(22)
+	next_button:SetText('Next page >>')
+	next_button:SetScript('OnClick', finish) -- abandon this page's leftovers, scan the next
+
 	frame:Hide()
 end
 
--- present(buys, on_done): buys = list of O('kind', 'record'). Shows the button and lets the
--- user rapid-fire through the page's matches cheapest-first; on_done resumes the scan when drained.
+-- present(buys, on_done): show this page's matches; the user buys/skips them or hits Next page,
+-- then on_done resumes the scan to the next page (called automatically when the queue empties).
 function M.present(buys, on_done)
 	ensure_frame()
 	queue = buys
@@ -116,11 +129,12 @@ function M.present(buys, on_done)
 	frame:Raise()
 end
 
-function M.disarm()
+local function disarm()
 	queue = nil
 	resume_scan = nil -- a superseding scan owns continuation now; don't resume the old one
 	if frame then frame:Hide() end
 end
+M.disarm = disarm
 
--- a closing AH invalidates any parked page of matches
-event_listener('AUCTION_HOUSE_CLOSED', function() M.disarm() end)
+-- a closing AH invalidates the parked page of matches
+event_listener('AUCTION_HOUSE_CLOSED', disarm)
