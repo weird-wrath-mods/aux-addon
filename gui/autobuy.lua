@@ -15,6 +15,7 @@ local frame, item_label, action_button
 -- button's clicks. resume_scan advances the parked scan to the next page once we're done here.
 local queue
 local resume_scan
+local bought_this_page -- buyouts fired on the current page; tells the scan whether to re-query it
 
 local function unit_price(entry)
 	return entry.kind == 'buy' and entry.record.unit_buyout_price or entry.record.unit_bid_price
@@ -39,7 +40,7 @@ local function update_label()
 	local rec = head.record
 	local q = ITEM_QUALITY_COLORS[rec.quality]
 	local name = (q and q.hex or '') .. (rec.name or '?') .. (q and FONT_COLOR_CODE_CLOSE or '')
-	item_label:SetText(name .. '   x' .. (rec.count or 1))
+	item_label:SetText(name .. '   x' .. (rec.count or 1) .. '  @ ' .. money.to_string(unit_price(head), true, true))
 	action_button:SetText(format('%s   %s   (%d)', head.kind == 'buy' and 'BUYOUT' or 'BID', money.to_string(price(head), true, true), getn(queue)))
 end
 
@@ -49,7 +50,7 @@ local function finish()
 	if frame then frame:Hide() end
 	local r = resume_scan
 	resume_scan = nil
-	do (r or nop)() end
+	do (r or nop)(bought_this_page or 0) end
 end
 
 -- drop the current match; if the page is now empty, move the scan on
@@ -67,6 +68,7 @@ local function act()
 	if idx and GetMoney() >= amount then
 		PlaceAuctionBid('list', idx, amount) -- direct: hardware event, no lock, rapid-fireable
 		if head.kind == 'buy' then
+			bought_this_page = (bought_this_page or 0) + 1 -- a buyout removed a row; page will shift
 			local ps = require 'aux.gui.purchase_summary'
 			ps.add_purchase(rec.name, rec.texture, rec.count, amount)
 			ps.update_display()
@@ -114,6 +116,7 @@ end
 -- drains, and on_done resumes the scan to the next page once it's empty.
 function M.present(buys, on_done)
 	ensure_frame()
+	bought_this_page = 0
 	queue = buys
 	sort(queue, function(a, b) return unit_price(a) < unit_price(b) end)
 	resume_scan = on_done

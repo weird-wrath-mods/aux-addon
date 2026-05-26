@@ -41,6 +41,10 @@ do
 		for type, state in pairs(scan_states) do
 			if not scan_id or state.id == scan_id then
 				kill_thread(state.id)
+				-- a scan aborted mid-page leaves its AUCTION_ITEM_LIST_UPDATE listener parked
+				-- (it's only killed when the page is accepted); kill it here so it doesn't keep
+				-- firing for the rest of the session.
+				if state.result_listener then kill_listener(state.result_listener) end
 				scan_states[type] = nil
 				tinsert(aborted, state)
 			end
@@ -146,7 +150,17 @@ function page_done()
 	-- indices stay valid. Pages with no matches advance immediately (no user wait).
 	if autobuy.present and getn(pending_buys) > 0 then
 		local send_signal, signal_received = signal()
-		when(signal_received, advance_page)
+		-- buying deletes auctions and shifts everything below up a slot, so rows that were just
+		-- past this page move into it (and the shrinking total can otherwise cut the scan short).
+		-- Re-query the SAME page after any purchase to catch them; only advance once the user
+		-- goes through a page buying nothing. send_signal carries the count bought this page.
+		when(signal_received, function()
+			local bought = signal_received()
+			if bought and bought[1] and bought[1] > 0 then
+				return submit_query() -- re-query the same page; buying shifted later rows into it
+			end
+			return advance_page()
+		end)
 		return autobuy.present(pending_buys, send_signal)
 	end
 	return advance_page()
@@ -211,28 +225,40 @@ function accept_results()
 	return scan_page()
 end
 
+local SETTLE_WAIT = 0.4 -- accept a page only after the list has been quiet this long
+local MIN_WAIT = 0.3    -- ...and never sooner than this after the query (skip the instant stale echo)
+
 function wait_for_results()
-    local updated, last_update
+    local last_update
     local listener_id = event_listener('AUCTION_ITEM_LIST_UPDATE', function()
         last_update = GetTime()
-        updated = true
     end)
+    state.result_listener = listener_id -- so an abort mid-wait can kill it (see M.abort)
     local timeout = later(5, state.last_list_query)
     local ignore_owner = state.params.ignore_owner or aux_ignore_owner
 	return when(function()
+		-- no data at all within the hard timeout: give up and re-submit the query
 		if not last_update and timeout() then
 			return true
 		end
-		if last_update and GetTime() - last_update > 5 then
+		-- hard cap: take whatever we have if the list never settles
+		if last_update and GetTime() - state.last_list_query >= 5 then
 			return true
 		end
-		-- short circuiting order important, owner_data_complete must be called iif an update has happened.
-		if updated and (ignore_owner or owner_data_complete()) then
+		-- The first AUCTION_ITEM_LIST_UPDATE after a query can be a stale snapshot: the prior
+		-- query's data echoed back, or this query's rows before prices settle. The real data
+		-- lands a moment later. Accept only once the page looks complete AND the list has gone
+		-- quiet for SETTLE_WAIT (and at least MIN_WAIT has passed), so we read the settled data
+		-- rather than the first stale frame. ignore_owner only skips the slow owner field.
+		if last_update
+			and GetTime() - state.last_list_query >= MIN_WAIT
+			and GetTime() - last_update >= SETTLE_WAIT
+			and page_complete(ignore_owner) then
 			return true
 		end
-		updated = false
 	end, function()
 		kill_listener(listener_id)
+		state.result_listener = nil
 		if not last_update and timeout() then
 			return submit_query()
 		else
@@ -241,11 +267,21 @@ function wait_for_results()
 	end)
 end
 
-function owner_data_complete()
-    for i = 1, PAGE_SIZE do
-        local auction_info = info.auction(i, 'list')
-        if auction_info and not auction_info.owner then
-	        return false
+-- A page's rows stream in over several AUCTION_ITEM_LIST_UPDATE events. The batch count from
+-- GetNumAuctionItems is correct from the first update, but per-row data (link/name, prices)
+-- lags. Accepting before every row has loaded silently drops the not-yet-loaded rows (their
+-- GetAuctionItemInfo name is nil, so info.auction returns nil and the validators never see
+-- them) -- which is why a re-scan finds matches the first scan missed. Owner is the slowest
+-- field and the only thing aux_ignore_owner is meant to skip, so we still gate on it here.
+function page_complete(ignore_owner)
+    local batch = GetNumAuctionItems(state.params.type)
+    for i = 1, batch do
+        local name, _, _, _, _, _, _, _, _, _, _, owner = GetAuctionItemInfo(state.params.type, i)
+        if not name then
+            return false
+        end
+        if not ignore_owner and not owner then
+            return false
         end
     end
     return true
