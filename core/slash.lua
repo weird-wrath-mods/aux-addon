@@ -76,12 +76,6 @@ function SlashCmdList.AUX(command)
     elseif arguments[1] == 'tooltip' and arguments[2] == 'disenchant' and arguments[3] == 'distribution' then
 	    tooltip_settings.disenchant_distribution = not tooltip_settings.disenchant_distribution
         print('tooltip disenchant distribution ' .. status(tooltip_settings.disenchant_distribution))
-    elseif arguments[1] == 'tooltip' and arguments[2] == 'bought' then
-	    tooltip_settings.bc_bought = not tooltip_settings.bc_bought
-        print('tooltip bought ' .. status(tooltip_settings.bc_bought))
-    elseif arguments[1] == 'tooltip' and arguments[2] == 'sold' then
-	    tooltip_settings.bc_sold = not tooltip_settings.bc_sold
-        print('tooltip sold ' .. status(tooltip_settings.bc_sold))
     elseif arguments[1] == 'clear' and arguments[2] == 'item' and arguments[3] == 'cache' then
 	    _G.aux_items = {}
 	    _G.aux_item_ids = {}
@@ -104,8 +98,6 @@ function SlashCmdList.AUX(command)
 		print('- tooltip merchant sell [' .. status(tooltip_settings.merchant_sell) .. ']')
 		print('- tooltip disenchant value [' .. status(tooltip_settings.disenchant_value) .. ']')
 		print('- tooltip disenchant distribution [' .. status(tooltip_settings.disenchant_distribution) .. ']')
-		print('- tooltip bought [' .. status(tooltip_settings.bc_bought) .. ']')
-		print('- tooltip sold [' .. status(tooltip_settings.bc_sold) .. ']')
 		print('- clear item cache')
 		print('- populate wdb')
     end

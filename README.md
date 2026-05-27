@@ -112,9 +112,6 @@ the addon scans each queued item, undercuts the cheapest competitor at or
 above historical value, and posts the appropriate full stacks + remainder.
 Sorted by total historical value (high-value items posted first).
 
-### BeanCounter
-A BeanCounter tab shows your full transaction history (sold, expired, bought, outbid) using the same `BeanCounterDB` schema as Auctioneer's BeanCounter. Reads existing data if you have BC installed; persists on its own if you don't. Tooltip lines toggle with `/aux tooltip bought` and `/aux tooltip sold`.
-
 ### Crafting Cost
 Reagent cost is shown in the Craft and TradeSkill UI labels and is also
 fed to ATSW (Advanced TradeSkill Window) when present.
