@@ -216,7 +216,7 @@ function post_auctions()
         local stack_size = stack_size_slider:GetValue()
         local stack_count
         stack_count = stack_count_slider:GetValue()
-        local duration = UIDropDownMenu_GetSelectedValue(duration_dropdown)
+        local duration = auxUIDropDownMenu_GetSelectedValue(duration_dropdown)
 		local key = selected_item.key
 
         -- local duration_code
@@ -525,7 +525,7 @@ function update_item_configuration()
         stack_count_slider.editbox:SetNumber(stack_count_slider:GetValue())
 
         local deposit_factor = UnitFactionGroup'npc' and 0.05 or 0.25
-        local duration_value = UIDropDownMenu_GetSelectedValue(duration_dropdown)
+        local duration_value = auxUIDropDownMenu_GetSelectedValue(duration_dropdown)
         local duration_factor = duration_value and (duration_value / 120) or nil
         local stack_size = selected_item.max_charges and 1 or stack_size_slider:GetValue()
         local stack_count = stack_count_slider:GetValue()
@@ -590,7 +590,7 @@ function unit_vendor_price(item_key)
 end
 
 function update_item(item)
-	CloseDropDownMenus()
+	auxCloseDropDownMenus()
 
     local settings = read_settings(item.key)
 
@@ -606,8 +606,8 @@ function update_item(item)
 
     selected_item = item
 
-    UIDropDownMenu_Initialize(duration_dropdown, initialize_duration_dropdown)
-    UIDropDownMenu_SetSelectedValue(duration_dropdown, settings.duration)
+    auxUIDropDownMenu_Initialize(duration_dropdown, initialize_duration_dropdown)
+    auxUIDropDownMenu_SetSelectedValue(duration_dropdown, settings.duration)
 
     hide_checkbox:SetChecked(settings.hidden)
     queue_checkbox:SetChecked(settings.queued)
@@ -774,23 +774,23 @@ end
 
 function initialize_duration_dropdown()
     local function on_click()
-        UIDropDownMenu_SetSelectedValue(duration_dropdown, this.value)
+        auxUIDropDownMenu_SetSelectedValue(duration_dropdown, this.value)
         local settings = read_settings()
         settings.duration = this.value
         write_settings(settings)
         refresh = true
     end
-    UIDropDownMenu_AddButton{
+    auxUIDropDownMenu_AddButton{
 	    text = '12 Hours',
 	    value = DURATION_12,
 	    func = on_click,
     }
-    UIDropDownMenu_AddButton{
+    auxUIDropDownMenu_AddButton{
 	    text = '24 Hours',
 	    value = DURATION_24,
 	    func = on_click,
     }
-    UIDropDownMenu_AddButton{
+    auxUIDropDownMenu_AddButton{
 	    text = '48 Hours',
 	    value = DURATION_48,
 	    func = on_click,

@@ -15,18 +15,18 @@ M.font_size = immutable-{
 --	do
 --		local blizzard_backdrop, aux_background, aux_border
 --
---		aux_border = DropDownList1:CreateTexture()
+--		aux_border = auxDropDownList1:CreateTexture()
 --		aux_border:SetTexture(1, 1, 1, .02)
---		aux_border:SetPoint('TOPLEFT', DropDownList1Backdrop, 'TOPLEFT', -2, 2)
---		aux_border:SetPoint('BOTTOMRIGHT', DropDownList1Backdrop, 'BOTTOMRIGHT', 1.5, -1.5)
+--		aux_border:SetPoint('TOPLEFT', auxDropDownList1Backdrop, 'TOPLEFT', -2, 2)
+--		aux_border:SetPoint('BOTTOMRIGHT', auxDropDownList1Backdrop, 'BOTTOMRIGHT', 1.5, -1.5)
 --		aux_border:SetBlendMode('ADD')
---		aux_background = DropDownList1:CreateTexture(nil, 'OVERLAY')
+--		aux_background = auxDropDownList1:CreateTexture(nil, 'OVERLAY')
 --		aux_background:SetTexture(color.content.background())
---		aux_background:SetAllPoints(DropDownList1Backdrop)
---		blizzard_backdrop = DropDownList1Backdrop:GetBackdrop()
---		hook('ToggleDropDownMenu', function(...)
+--		aux_background:SetAllPoints(auxDropDownList1Backdrop)
+--		blizzard_backdrop = auxDropDownList1Backdrop:GetBackdrop()
+--		hook('auxToggleDropDownMenu', function(...)
 --			temp(arg)
---			local ret = temp-A(orig.ToggleDropDownMenu(unpack(arg)))
+--			local ret = temp-A(orig.auxToggleDropDownMenu(unpack(arg)))
 --			local dropdown = _G[arg[4] or ''] or this:GetParent()
 --			if strfind(dropdown:GetName() or '', '^AuxFrame%d+$') then
 --				set_aux_dropdown_style(dropdown)
@@ -37,28 +37,28 @@ M.font_size = immutable-{
 --		end)
 --
 --		function set_aux_dropdown_style(dropdown)
---			DropDownList1Backdrop:SetBackdrop(empty)
+--			auxDropDownList1Backdrop:SetBackdrop(empty)
 --			aux_border:Show()
 --			aux_background:Show()
---			DropDownList1:SetWidth(dropdown:GetWidth() * .9)
---			DropDownList1:SetHeight(DropDownList1:GetHeight() - 10)
---			DropDownList1:ClearAllPoints()
---			DropDownList1:SetPoint('TOPLEFT', dropdown, 'BOTTOMLEFT', -2, -2)
---			for i = 1, UIDROPDOWNMENU_MAXBUTTONS do
---				local button = _G['DropDownList1Button' .. i]
---				button:SetPoint('TOPLEFT', 0, -((button:GetID() - 1) * UIDROPDOWNMENU_BUTTON_HEIGHT) - 7)
---				button:SetPoint('TOPRIGHT', 0, -((button:GetID() - 1) * UIDROPDOWNMENU_BUTTON_HEIGHT) - 7)
+--			auxDropDownList1:SetWidth(dropdown:GetWidth() * .9)
+--			auxDropDownList1:SetHeight(auxDropDownList1:GetHeight() - 10)
+--			auxDropDownList1:ClearAllPoints()
+--			auxDropDownList1:SetPoint('TOPLEFT', dropdown, 'BOTTOMLEFT', -2, -2)
+--			for i = 1, auxUIDROPDOWNMENU_MAXBUTTONS do
+--				local button = _G['auxDropDownList1Button' .. i]
+--				button:SetPoint('TOPLEFT', 0, -((button:GetID() - 1) * auxUIDROPDOWNMENU_BUTTON_HEIGHT) - 7)
+--				button:SetPoint('TOPRIGHT', 0, -((button:GetID() - 1) * auxUIDROPDOWNMENU_BUTTON_HEIGHT) - 7)
 --				local text = button:GetFontString()
 --				text:SetFont(font, 14)
 --				text:SetPoint('TOPLEFT', 18, 0)
 --				text:SetPoint('BOTTOMRIGHT', -8, 0)
---				local highlight = _G['DropDownList1Button' .. i .. 'Highlight']
+--				local highlight = _G['auxDropDownList1Button' .. i .. 'Highlight']
 --				highlight:ClearAllPoints()
 --				highlight:SetDrawLayer('OVERLAY')
 --				highlight:SetHeight(14)
 --				highlight:SetPoint('LEFT', 5, 0)
 --				highlight:SetPoint('RIGHT', -3, 0)
---				local check = _G['DropDownList1Button' .. i .. 'Check']
+--				local check = _G['auxDropDownList1Button' .. i .. 'Check']
 --				check:SetWidth(16)
 --				check:SetHeight(16)
 --				check:SetPoint('LEFT', 3, -1)
@@ -66,18 +66,18 @@ M.font_size = immutable-{
 --		end
 --
 --		function set_blizzard_dropdown_style()
---			DropDownList1Backdrop:SetBackdrop(blizzard_backdrop)
+--			auxDropDownList1Backdrop:SetBackdrop(blizzard_backdrop)
 --			aux_border:Hide()
 --			aux_background:Hide()
---			for i = 1, UIDROPDOWNMENU_MAXBUTTONS do
---				local button = _G['DropDownList1Button' .. i]
+--			for i = 1, auxUIDROPDOWNMENU_MAXBUTTONS do
+--				local button = _G['auxDropDownList1Button' .. i]
 --				local text = button:GetFontString()
 --				text:SetFont([[Fonts\FRIZQT__.ttf]], 10)
 --				text:SetShadowOffset(1, -1)
---				local highlight = _G['DropDownList1Button' .. i .. 'Highlight']
+--				local highlight = _G['auxDropDownList1Button' .. i .. 'Highlight']
 --				highlight:SetAllPoints()
 --				highlight:SetDrawLayer('BACKGROUND')
---				local check = _G['DropDownList1Button' .. i .. 'Check']
+--				local check = _G['auxDropDownList1Button' .. i .. 'Check']
 --				check:SetWidth(24)
 --				check:SetHeight(24)
 --				check:SetPoint('LEFT', 0, 0)
@@ -95,15 +95,15 @@ do
 end
 
 do
-	local menu = CreateFrame('Frame', unique_name, UIParent, 'UIDropDownMenuTemplate')
+	local menu = CreateFrame('Frame', unique_name, UIParent, 'auxUIDropDownMenuTemplate')
 	M.menu = vararg-function(arg)
-		HideDropDownMenu(1)
-		UIDropDownMenu_Initialize(menu, function()
+		auxHideDropDownMenu(1)
+		auxUIDropDownMenu_Initialize(menu, function()
 			for i = 1, arg.n, 2 do
-				UIDropDownMenu_AddButton(O('text', arg[i], 'notCheckable', true, 'func', arg[i + 1]))
+				auxUIDropDownMenu_AddButton(O('text', arg[i], 'notCheckable', true, 'func', arg[i + 1]))
 			end
 		end, 'MENU')
-		ToggleDropDownMenu(1, nil, menu, 'cursor')
+		auxToggleDropDownMenu(1, nil, menu, 'cursor')
 	end
 end
 
@@ -469,7 +469,7 @@ function M.vertical_line(parent, x_offset, top_offset, bottom_offset, inverted_c
 end
 
 function M.dropdown(parent)
-    local dropdown = CreateFrame('Frame', unique_name, parent, 'UIDropDownMenuTemplate')
+    local dropdown = CreateFrame('Frame', unique_name, parent, 'auxUIDropDownMenuTemplate')
 	set_content_style(dropdown, 0, 0, 4, 4)
 
     _G[dropdown:GetName() .. 'Left']:Hide()

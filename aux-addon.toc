@@ -7,6 +7,8 @@
 libs\compat.lua
 libs\module.lua
 libs\T.lua
+libs\dropdown.lua
+libs\dropdown.xml
 
 aux-addon.lua
 util.lua

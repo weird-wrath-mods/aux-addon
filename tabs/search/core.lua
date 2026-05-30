@@ -45,7 +45,7 @@ function USE_ITEM(_, _, _, _, name)
 end
 
 function set_subtab(tab)
-	CloseDropDownMenus()
+	auxCloseDropDownMenus()
     search_results_button:UnlockHighlight()
     saved_searches_button:UnlockHighlight()
     new_filter_button:UnlockHighlight()

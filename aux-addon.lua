@@ -111,7 +111,7 @@ do
 	local index
 	function get_active_tab() return tab_info[index] end
 	function on_tab_click(i)
-		CloseDropDownMenus()
+		auxCloseDropDownMenus()
 		do (index and active_tab.CLOSE or nop)() end
 		index = i
 		do (index and active_tab.OPEN or nop)() end

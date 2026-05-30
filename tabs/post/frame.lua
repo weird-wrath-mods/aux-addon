@@ -245,9 +245,9 @@ do
     local label = gui.label(dropdown, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
     label:SetText('Duration')
-    UIDropDownMenu_Initialize(dropdown, initialize_duration_dropdown)
+    auxUIDropDownMenu_Initialize(dropdown, initialize_duration_dropdown)
     dropdown:SetScript('OnShow', function()
-        UIDropDownMenu_Initialize(this, initialize_duration_dropdown)
+        auxUIDropDownMenu_Initialize(this, initialize_duration_dropdown)
     end)
     duration_dropdown = dropdown
 end

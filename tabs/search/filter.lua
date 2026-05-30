@@ -26,16 +26,16 @@ blizzard_query = setmetatable(T, {
 		elseif key == 'usable' then
 			return usable_checkbox:GetChecked()
 		elseif key == 'class' then
-			local class_index = UIDropDownMenu_GetSelectedValue(class_dropdown)
+			local class_index = auxUIDropDownMenu_GetSelectedValue(class_dropdown)
 			return class_index ~= 0 and class_index or nil
 		elseif key == 'subclass' then
-			local subclass_index = UIDropDownMenu_GetSelectedValue(subclass_dropdown)
+			local subclass_index = auxUIDropDownMenu_GetSelectedValue(subclass_dropdown)
 			return subclass_index ~= 0 and subclass_index or nil
 		elseif key == 'slot' then
-			local slot_index = UIDropDownMenu_GetSelectedValue(slot_dropdown)
+			local slot_index = auxUIDropDownMenu_GetSelectedValue(slot_dropdown)
 			return (slot_index or 0) > 0 and slot_index or nil
 		elseif key == 'quality' then
-			local quality_code = UIDropDownMenu_GetSelectedValue(quality_dropdown)
+			local quality_code = auxUIDropDownMenu_GetSelectedValue(quality_dropdown)
 			return (quality_code or -1) >= 0 and quality_code or nil
 		end
 	end,
@@ -51,17 +51,17 @@ blizzard_query = setmetatable(T, {
 		elseif key == 'usable' then
 			usable_checkbox:SetChecked(value)
 		elseif key == 'class' then
-			UIDropDownMenu_Initialize(class_dropdown, initialize_class_dropdown)
-			UIDropDownMenu_SetSelectedValue(class_dropdown, value)
+			auxUIDropDownMenu_Initialize(class_dropdown, initialize_class_dropdown)
+			auxUIDropDownMenu_SetSelectedValue(class_dropdown, value)
 		elseif key == 'subclass' then
-			UIDropDownMenu_Initialize(subclass_dropdown, initialize_subclass_dropdown)
-			UIDropDownMenu_SetSelectedValue(subclass_dropdown, value)
+			auxUIDropDownMenu_Initialize(subclass_dropdown, initialize_subclass_dropdown)
+			auxUIDropDownMenu_SetSelectedValue(subclass_dropdown, value)
 		elseif key == 'slot' then
-			UIDropDownMenu_Initialize(slot_dropdown, initialize_slot_dropdown)
-			UIDropDownMenu_SetSelectedValue(slot_dropdown, value)
+			auxUIDropDownMenu_Initialize(slot_dropdown, initialize_slot_dropdown)
+			auxUIDropDownMenu_SetSelectedValue(slot_dropdown, value)
 		elseif key == 'quality' then
-			UIDropDownMenu_Initialize(quality_dropdown, initialize_quality_dropdown)
-			UIDropDownMenu_SetSelectedValue(quality_dropdown, value)
+			auxUIDropDownMenu_Initialize(quality_dropdown, initialize_quality_dropdown)
+			auxUIDropDownMenu_SetSelectedValue(quality_dropdown, value)
 		end
 	end,
 })
@@ -88,7 +88,7 @@ function update_form()
 		for key in pairs(temp-S('class', 'subclass', 'slot', 'quality')) do
 			_M[key .. '_dropdown'].button:Disable()
 		end
-		CloseDropDownMenus()
+		auxCloseDropDownMenus()
 	else
 		usable_checkbox:Enable()
 		for key in pairs(temp-S('min_level', 'max_level')) do
@@ -171,10 +171,10 @@ function clear_form()
 	blizzard_query.max_level = ''
 	max_level_input:ClearFocus()
 	blizzard_query.usable = false
-	UIDropDownMenu_ClearAll(class_dropdown)
-	UIDropDownMenu_ClearAll(subclass_dropdown)
-	UIDropDownMenu_ClearAll(slot_dropdown)
-	UIDropDownMenu_ClearAll(quality_dropdown)
+	auxUIDropDownMenu_ClearAll(class_dropdown)
+	auxUIDropDownMenu_ClearAll(subclass_dropdown)
+	auxUIDropDownMenu_ClearAll(slot_dropdown)
+	auxUIDropDownMenu_ClearAll(quality_dropdown)
 	filter_parameter_input:ClearFocus()
 	wipe(post_filter)
 	post_filter_index = 0
@@ -323,7 +323,7 @@ end
 
 function initialize_filter_dropdown()
 	for _, filter in ipairs(temp-A('and', 'or', 'not', 'price', 'profit', 'vendor-profit', 'disenchant-profit', 'percent', 'disenchant-percent', 'bid-price', 'bid-profit', 'bid-vendor-profit', 'bid-disenchant-profit', 'bid-percent', 'bid-disenchant-percent', 'item', 'tooltip', 'min-level', 'max-level', 'rarity', 'left', 'utilizable', 'isgear', 'stack')) do
-		UIDropDownMenu_AddButton(O(
+		auxUIDropDownMenu_AddButton(O(
 			'text', filter,
 			'value', filter,
 			'func', function()
@@ -344,51 +344,51 @@ end
 function initialize_class_dropdown()
 	local function on_click()
 		if this.value ~= blizzard_query.class then
-			UIDropDownMenu_SetSelectedValue(class_dropdown, this.value)
-			UIDropDownMenu_ClearAll(subclass_dropdown)
-			UIDropDownMenu_Initialize(subclass_dropdown, initialize_subclass_dropdown)
-			UIDropDownMenu_ClearAll(slot_dropdown)
-			UIDropDownMenu_Initialize(slot_dropdown, initialize_slot_dropdown)
+			auxUIDropDownMenu_SetSelectedValue(class_dropdown, this.value)
+			auxUIDropDownMenu_ClearAll(subclass_dropdown)
+			auxUIDropDownMenu_Initialize(subclass_dropdown, initialize_subclass_dropdown)
+			auxUIDropDownMenu_ClearAll(slot_dropdown)
+			auxUIDropDownMenu_Initialize(slot_dropdown, initialize_slot_dropdown)
 			update_form()
 		end
 	end
-	UIDropDownMenu_AddButton(O('text', ALL, 'value', 0, 'func', on_click))
+	auxUIDropDownMenu_AddButton(O('text', ALL, 'value', 0, 'func', on_click))
 	for i, class in ipairs(temp-A(GetAuctionItemClasses())) do
-		UIDropDownMenu_AddButton(O('text', class, 'value', i, 'func', on_click))
+		auxUIDropDownMenu_AddButton(O('text', class, 'value', i, 'func', on_click))
 	end
 end
 
 function initialize_subclass_dropdown()
 	local function on_click()
 		if this.value ~= blizzard_query.subclass then
-			UIDropDownMenu_SetSelectedValue(subclass_dropdown, this.value)
+			auxUIDropDownMenu_SetSelectedValue(subclass_dropdown, this.value)
 			update_form()
 		end
 	end
-	UIDropDownMenu_AddButton(O('text', ALL, 'value', 0, 'func', on_click))
+	auxUIDropDownMenu_AddButton(O('text', ALL, 'value', 0, 'func', on_click))
 	for i, subclass in ipairs(temp-A(GetAuctionItemSubClasses(blizzard_query.class or 0))) do
-		UIDropDownMenu_AddButton(O('text', subclass, 'value', i, 'func', on_click))
+		auxUIDropDownMenu_AddButton(O('text', subclass, 'value', i, 'func', on_click))
 	end
 end
 
 function initialize_slot_dropdown()
 	local function on_click()
-		UIDropDownMenu_SetSelectedValue(slot_dropdown, this.value)
+		auxUIDropDownMenu_SetSelectedValue(slot_dropdown, this.value)
 		update_form()
 	end
-	UIDropDownMenu_AddButton(O('text', ALL, 'value', 0, 'func', on_click))
+	auxUIDropDownMenu_AddButton(O('text', ALL, 'value', 0, 'func', on_click))
 	for i, slot in ipairs(temp-A(GetAuctionInvTypes(blizzard_query.class == 2 and 2 or 0, blizzard_query.subclass or 0, true))) do
-		UIDropDownMenu_AddButton(O('text', _G[slot], 'value', i, 'func', on_click))
+		auxUIDropDownMenu_AddButton(O('text', _G[slot], 'value', i, 'func', on_click))
 	end
 end
 
 function initialize_quality_dropdown()
 	local function on_click()
-		UIDropDownMenu_SetSelectedValue(quality_dropdown, this.value)
+		auxUIDropDownMenu_SetSelectedValue(quality_dropdown, this.value)
 		update_form()
 	end
-	UIDropDownMenu_AddButton(O('text', ALL, 'value', -1, 'func', on_click))
+	auxUIDropDownMenu_AddButton(O('text', ALL, 'value', -1, 'func', on_click))
 	for i = 0, 4 do
-		UIDropDownMenu_AddButton(O('text', _G['ITEM_QUALITY' .. i .. '_DESC'], 'value', i, 'func', on_click))
+		auxUIDropDownMenu_AddButton(O('text', _G['ITEM_QUALITY' .. i .. '_DESC'], 'value', i, 'func', on_click))
 	end
 end

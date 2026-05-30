@@ -378,9 +378,9 @@ do
     local label = gui.label(dropdown, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
     label:SetText('Item Class')
-    UIDropDownMenu_Initialize(dropdown, initialize_class_dropdown)
+    auxUIDropDownMenu_Initialize(dropdown, initialize_class_dropdown)
     dropdown:SetScript('OnShow', function()
-        UIDropDownMenu_Initialize(this, initialize_class_dropdown)
+        auxUIDropDownMenu_Initialize(this, initialize_class_dropdown)
     end)
 end
 do
@@ -391,9 +391,9 @@ do
     local label = gui.label(dropdown, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
     label:SetText('Item Subclass')
-    UIDropDownMenu_Initialize(dropdown, initialize_subclass_dropdown)
+    auxUIDropDownMenu_Initialize(dropdown, initialize_subclass_dropdown)
     dropdown:SetScript('OnShow', function()
-        UIDropDownMenu_Initialize(this, initialize_subclass_dropdown)
+        auxUIDropDownMenu_Initialize(this, initialize_subclass_dropdown)
     end)
 end
 do
@@ -404,9 +404,9 @@ do
     local label = gui.label(dropdown, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
     label:SetText('Item Slot')
-    UIDropDownMenu_Initialize(dropdown, initialize_slot_dropdown)
+    auxUIDropDownMenu_Initialize(dropdown, initialize_slot_dropdown)
     dropdown:SetScript('OnShow', function()
-        UIDropDownMenu_Initialize(this, initialize_slot_dropdown)
+        auxUIDropDownMenu_Initialize(this, initialize_slot_dropdown)
     end)
 end
 do
@@ -417,9 +417,9 @@ do
     local label = gui.label(dropdown, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
     label:SetText('Min Quality')
-    UIDropDownMenu_Initialize(dropdown, initialize_quality_dropdown)
+    auxUIDropDownMenu_Initialize(dropdown, initialize_quality_dropdown)
     dropdown:SetScript('OnShow', function()
-        UIDropDownMenu_Initialize(this, initialize_quality_dropdown)
+        auxUIDropDownMenu_Initialize(this, initialize_quality_dropdown)
     end)
 end
 gui.vertical_line(frame.filter, 332)
@@ -427,9 +427,9 @@ do
     local dropdown = gui.dropdown(frame.filter)
     dropdown:SetPoint('TOPRIGHT', -174.5, -10)
     dropdown:SetWidth(150)
-    UIDropDownMenu_Initialize(dropdown, initialize_filter_dropdown)
+    auxUIDropDownMenu_Initialize(dropdown, initialize_filter_dropdown)
     dropdown:SetScript('OnShow', function()
-        UIDropDownMenu_Initialize(this, initialize_filter_dropdown)
+        auxUIDropDownMenu_Initialize(this, initialize_filter_dropdown)
     end)
     _G[dropdown:GetName() .. 'Text']:Hide()
     local label = gui.label(dropdown, gui.font_size.medium)
