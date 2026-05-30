@@ -47,3 +47,5 @@ do
     btn:SetText('Refresh')
     btn:SetScript('OnClick', GetOwnerAuctionItems)
 end
+
+function M.get_status_bar() return status_bar end

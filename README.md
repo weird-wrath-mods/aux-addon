@@ -7,6 +7,10 @@ The most advanced auction house addOn for the 3.3.5 client with some features mo
 
 ## Changelog
 
+### 30 may 2026
+
+* Added a Get All button: scans the whole auction house in one query (15 minute cooldown).
+
 ### 3 september 2025
 
 * Disenchant value and distribution is now working on any item
@@ -73,6 +77,15 @@ The most advanced auction house addOn for the 3.3.5 client with some features mo
 **/aux tooltip sold**<br/>
 
 ## Advanced Features
+
+### Get All Scan
+The **Get All** button (left of Blizzard UI) pulls the entire auction house in a
+single server query and folds the minimum buyouts into price history. It reads
+the snapshot in chunks across frames to keep CPU and memory low, the way TSM and
+Auctioneer do. The server throttles this to roughly once every 15 minutes:
+while on cooldown the button is greyed out and its tooltip shows the time
+remaining.
+Charge items are priced per stack rather than per charge.
 
 ### Auto-buy / Auto-bid for Saved Searches
 Right-click a favorite search to toggle Auto Buy or Auto Bid. Marked favorites

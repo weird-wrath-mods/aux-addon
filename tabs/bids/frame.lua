@@ -58,3 +58,5 @@ do
     btn:SetText('Refresh')
     btn:SetScript('OnClick', GetBidderAuctionItems)
 end
+
+function M.get_status_bar() return status_bar end

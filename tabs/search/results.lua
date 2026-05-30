@@ -466,3 +466,5 @@ do
 		end
 	end
 end
+
+function M.get_status_bar() return current_search and current_search.status_bar end
