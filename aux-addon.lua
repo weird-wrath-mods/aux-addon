@@ -31,11 +31,17 @@ end
 
 do
 	local handlers, handlers2 = {}, {}
+	local phase1_done
 	function M.set_LOAD(f)
 		tinsert(handlers, f)
 	end
 	function M.set_LOAD2(f)
 		tinsert(handlers2, f)
+	end
+	local function run_phase1()
+		if phase1_done then return end
+		phase1_done = true
+		for _, f in pairs(handlers) do f() end
 	end
 	event_frame:SetScript('OnEvent', function()
 		if event == 'ADDON_LOADED' then
@@ -47,8 +53,9 @@ do
 				Blizzard_TradeSkillUI()
 			end
 		elseif event == 'VARIABLES_LOADED' then
-			for _, f in pairs(handlers) do f() end
+			run_phase1()
 		elseif event == 'PLAYER_LOGIN' then
+			run_phase1() -- VARIABLES_LOADED can fire after PLAYER_LOGIN on fresh chars; ensure saved-var init ran first
 			for _, f in pairs(handlers2) do f() end
 			print('loaded - /aux')
 		else
