@@ -9,8 +9,15 @@ local history_schema = {'tuple', '#', {next_push='number'}, {daily_min_buyout='n
 
 local value_cache = {}
 
-function LOAD2()
-	data = faction_data'history'
+-- `data` is the faction-scoped history store. It is exposed through this lazy
+-- accessor so the tooltip hook (installed in phase-1 LOAD) can never index a nil
+-- store if it fires before the faction cache is bound: the first read binds it.
+do
+	local store
+	function get_data()
+		store = store or faction_data'history'
+		return store
+	end
 end
 
 do

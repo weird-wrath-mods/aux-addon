@@ -28,8 +28,14 @@ function get_default_settings()
 	return O('duration', aux_post_duration or DURATION_24, 'start_price', 0, 'buyout_price', 0, 'hidden', false, 'stack_size', 0, 'queued', false)
 end
 
-function LOAD2()
-	data = faction_data'post'
+-- `data` is the faction-scoped post-settings store, exposed lazily so a read
+-- before the faction cache is bound recovers by binding it on first use.
+do
+	local store
+	function get_data()
+		store = store or faction_data'post'
+		return store
+	end
 end
 
 function read_settings(item_key)

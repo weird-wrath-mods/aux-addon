@@ -66,32 +66,38 @@ end
 
 do
 	local cache = {}
-	function LOAD()
-		cache.account = aux.account
-		do
+	local function bind_cache(scope)
+		if scope == 'account' then
+			cache.account = aux.account
+		elseif scope == 'character' then
 			local key = format('%s|%s', GetCVar'realmName', UnitName'player')
 			aux.character[key] = aux.character[key] or {}
 			cache.character = aux.character[key]
-		end
-		do
+		elseif scope == 'realm' then
 			local key = GetCVar'realmName'
 			aux.realm[key] = aux.realm[key] or {}
 			cache.realm = aux.realm[key]
-		end
-	end
-	function LOAD2()
-		do
+		elseif scope == 'faction' then
 			local key = format('%s|%s', GetCVar'realmName', UnitFactionGroup'player')
 			aux.faction[key] = aux.faction[key] or {}
 			cache.faction = aux.faction[key]
 		end
+		return cache[scope]
+	end
+	function LOAD()
+		bind_cache('account')
+		bind_cache('character')
+		bind_cache('realm')
+	end
+	function LOAD2()
+		bind_cache('faction')
 	end
 	for scope in pairs(temp-S('character', 'faction', 'realm', 'account')) do
 		local scope = scope
 		M[scope .. '_data'] = function(key, init)
-			if not cache[scope]
-				then error('Cache not ready', 2)
-			end
+			-- Recover instead of erroring: if a data accessor is hit before its
+			-- LOAD/LOAD2 ran (init-order race), bind the scope on demand.
+			if not cache[scope] then bind_cache(scope) end
 			cache[scope][key] = cache[scope][key] or {}
 			for k, v in pairs(init or empty) do
 				if cache[scope][key][k] == nil then
@@ -318,6 +324,12 @@ do
 		end)
 		for i = 1, 8 do
 			hook_quest_item(_G['TradeSkillReagent' .. i])
+			-- Advanced Trade Skill Window replaces the Blizzard frame with its own
+			-- reagent buttons (same name/Name layout); hook them so right-click-to-
+			-- search works with ATSW open too.
+			if _G['ATSWReagent' .. i] then
+				hook_quest_item(_G['ATSWReagent' .. i])
+			end
 		end
 	end
 end
