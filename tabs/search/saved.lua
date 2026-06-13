@@ -104,7 +104,7 @@ function get_auto_buy_validator()
 		if search.auto_buy then
 			local queries, error = filter_util.queries(search.filter_string)
 			if queries then
-				tinsert(validators, queries[1].validator)
+				for _, query in pairs(queries) do tinsert(validators, query.validator) end
 			else
 				print('Invalid auto buy filter:', error)
 			end
@@ -121,7 +121,7 @@ function get_auto_bid_validator()
 		if search.auto_bid then
 			local queries, error = filter_util.queries(search.filter_string)
 			if queries then
-				tinsert(validators, queries[1].validator)
+				for _, query in pairs(queries) do tinsert(validators, query.validator) end
 			else
 				print('Invalid auto bid filter:', error)
 			end
@@ -132,33 +132,44 @@ function get_auto_bid_validator()
 	end
 end
 
+-- A multi-item filter (parts split on ';') is allowed: each part's validator is OR'd into the
+-- auto-buy/bid test (see get_auto_buy_validator). The only constraint is per part: a Blizzard
+-- filter must be exact, otherwise that part's validator matches everything on the page.
+function nonexact_blizzard_part(filter_string)
+	local parts = split(filter_string, ';')
+	local queries = filter_util.queries(filter_string)
+	for i = 1, getn(parts) do
+		if queries[i] and size(queries[i].blizzard_query) > 0 and not filter_util.parse_filter_string(parts[i]).blizzard.exact then
+			return parts[i]
+		end
+	end
+end
+
 function enable_auto_buy(search)
 	local queries, error = filter_util.queries(search.filter_string)
-	if queries then
-		if getn(queries) > 1 then
-			print('Error: Auto Buy does not support multi-queries')
-		elseif size(queries[1].blizzard_query) > 0 and not filter_util.parse_filter_string(search.filter_string).blizzard.exact then
-			print('Error: Auto Buy does not support Blizzard filters')
-		else
-			search.auto_buy = true
-		end
-	else
+	if not queries then
 		print('Invalid filter:', error)
+		return
+	end
+	local bad = nonexact_blizzard_part(search.filter_string)
+	if bad then
+		print('Error: Auto Buy needs exact items for Blizzard filters:', bad)
+	else
+		search.auto_buy = true
 	end
 end
 
 function enable_auto_bid(search)
 	local queries, error = filter_util.queries(search.filter_string)
-	if queries then
-		if getn(queries) > 1 then
-			print('Error: Auto Bid does not support multi-queries')
-		elseif size(queries[1].blizzard_query) > 0 and not filter_util.parse_filter_string(search.filter_string).blizzard.exact then
-			print('Error: Auto Bid does not support Blizzard filters')
-		else
-			search.auto_bid = true
-		end
-	else
+	if not queries then
 		print('Invalid filter:', error)
+		return
+	end
+	local bad = nonexact_blizzard_part(search.filter_string)
+	if bad then
+		print('Error: Auto Bid needs exact items for Blizzard filters:', bad)
+	else
+		search.auto_bid = true
 	end
 end
 

@@ -100,6 +100,10 @@ own. Auto-bid skips auctions where you are already the high bidder.
 Purchases are one-per-click by design: the server only honors auction buys made
 from a real button press, so this can't run fully unattended.
 
+A favorite can be a multi-item filter with parts separated by `;`. Every part
+feeds the same buy button, so one saved search can cover several items. Any part
+that uses a Blizzard filter must be exact.
+
 ### Autopricing
 On the Post tab, leaving the bid price at 0 triggers an autopricing pass
 when you click Post. It derives a price from your historical value, daily
